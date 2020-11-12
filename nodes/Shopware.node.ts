@@ -48,6 +48,7 @@ export class Shopware implements INodeType {
 		displayName: 'Shopware',
 		name: 'shopware',
 		group: ['transform'],
+		icon: 'file:shopware.png',
 		version: 1,
 		description: 'Consume Shopware 6 API',
 		defaults: {

@@ -25,6 +25,7 @@ export class ShopwareTrigger implements INodeType {
 		displayName: 'Shopware Trigger',
 		name: 'shopwareTrigger',
 		group: ['trigger'],
+		icon: 'file:shopware.png',
 		version: 1,
 		description: 'Handle Shopware events via webhooks',
 		defaults: {
