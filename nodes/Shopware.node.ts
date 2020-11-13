@@ -337,11 +337,13 @@ export class Shopware implements INodeType {
 					const countryId = this.getNodeParameter('countryId', i) as string;
 					const taxRate = this.getNodeParameter('taxRate', i) as string;
 					const taxId = this.getNodeParameter('taxId', i) as string;
+					const taxRuleTypeId = this.getNodeParameter('taxRuleTypeId', i) as string;
 
 					Object.assign(body,{
 						countryId: countryId,
 						taxRate: taxRate,
 						taxId: taxId,
+						taxRuleTypeId: taxRuleTypeId,
 					});
 				}
 
