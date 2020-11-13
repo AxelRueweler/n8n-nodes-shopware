@@ -102,7 +102,7 @@ export class Shopware implements INodeType {
 				displayName: 'Ids',
 				name: 'ids',
 				placeholder: 'Ids',
-				description: 'Ids of entity - one per Line',
+				description: 'Ids of entities. Seperated by comma.',
 				type: 'string',
 				displayOptions: {
 					show: {
@@ -272,7 +272,7 @@ export class Shopware implements INodeType {
 					const Ids = this.getNodeParameter('ids', i) as string;
 					if (Ids) {
 						body.ids = [];
-						Object.assign(body.ids, Ids.split('\n'));
+						Object.assign(body.ids, Ids.split(','));
 					}
 				}
 
