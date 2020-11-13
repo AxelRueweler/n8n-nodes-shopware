@@ -80,6 +80,11 @@ export class Shopware implements INodeType {
 				type: 'options',
 				options: [
 					{
+						name: 'Create',
+						value: 'create',
+						description: 'Create an entity',
+					},
+					{
 						name: 'Get',
 						value: 'get',
 						description: 'Get an entity',
@@ -208,6 +213,66 @@ export class Shopware implements INodeType {
 
 			...entityFields,
 			...filterFields,
+
+			/**
+			 * Tax Rule
+			 */
+			{
+				displayName: 'country Id',
+				name: 'countryId',
+				type: 'string',
+				required: true,
+				displayOptions: {
+					show: {
+						operation: [
+							'create'
+						],
+					},
+				},
+				default: '',
+			},
+			{
+				displayName: 'taxRate',
+				name: 'taxRate',
+				type: 'string',
+				required: true,
+				displayOptions: {
+					show: {
+						operation: [
+							'create'
+						],
+					},
+				},
+				default: '',
+			},
+			{
+				displayName: 'taxId',
+				name: 'taxId',
+				type: 'string',
+				required: true,
+				displayOptions: {
+					show: {
+						operation: [
+							'create'
+						],
+					},
+				},
+				default: '',
+			},
+			{
+				displayName: 'taxRuleTypeId',
+				name: 'taxRuleTypeId',
+				type: 'string',
+				required: true,
+				displayOptions: {
+					show: {
+						operation: [
+							'create'
+						],
+					},
+				},
+				default: '',
+			}, 
 		]
 	};
 
@@ -264,6 +329,26 @@ export class Shopware implements INodeType {
 		const body: IDataObject = {};
 		const operation = this.getNodeParameter('operation', 0) as string;
 		for (let i = 0; i < length; i++) {
+			if (operation === 'create') {
+				const resource = this.getNodeParameter('resource', i) as string;
+
+				
+				if(resource === 'tax-rule') {
+					const countryId = this.getNodeParameter('countryId', i) as string;
+					const taxRate = this.getNodeParameter('taxRate', i) as string;
+					const taxId = this.getNodeParameter('taxId', i) as string;
+
+					Object.assign(body,{
+						countryId: countryId,
+						taxRate: taxRate,
+						taxId: taxId,
+					});
+				}
+
+				if (resource) {
+					responseData = await shopwareApiRequest.call(this, 'POST', '/' + resource, body);
+				}
+			}
 			if (operation === 'get' || operation === 'getAll') {
 				if (operation === 'get') {
 					/*
