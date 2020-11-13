@@ -7,7 +7,7 @@ import {
 	IDataObject,
 	INodeType,
 	INodeTypeDescription,
-	IWebhookResonseData,
+	IWebhookResponseData,
 } from 'n8n-workflow';
 
 import {
@@ -130,7 +130,7 @@ export class ShopwareTrigger implements INodeType {
 		},
 	};
 
-	async webhook(this: IWebhookFunctions): Promise<IWebhookResonseData> {
+	async webhook(this: IWebhookFunctions): Promise<IWebhookResponseData> {
 		const headerData = this.getHeaderData() as IDataObject;
 		const req = this.getRequestObject();
 
