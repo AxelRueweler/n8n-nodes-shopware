@@ -169,7 +169,7 @@ export class Shopware implements INodeType {
 				displayOptions: {
 					show: {
 						operation: [
-							'get', 'getAll'
+							'get'
 						],
 					},
 				},
@@ -184,7 +184,7 @@ export class Shopware implements INodeType {
 				displayOptions: {
 					show: {
 						operation: [
-							'get', 'getAll'
+							'get'
 						],
 					},
 				},
