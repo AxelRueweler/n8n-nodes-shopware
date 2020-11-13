@@ -274,6 +274,24 @@ export class Shopware implements INodeType {
 						body.ids = [];
 						Object.assign(body.ids, Ids.split(','));
 					}
+
+					/*
+					* Page of the result
+					*/
+					const page = this.getNodeParameter('page', i) as Number;
+
+					if (page) {
+						body.page = page;
+					}
+
+					/*
+					* Limit of the result
+					*/
+					const limit = this.getNodeParameter('limit', i) as Number;
+
+					if (limit) {
+						body.limit = limit;
+					}
 				}
 
 				/*
@@ -309,25 +327,6 @@ export class Shopware implements INodeType {
 
 				if (totalCountMode) {
 					body['total-count-mode'] = totalCountMode;
-				}
-
-
-				/*
-				* Page of the result
-				*/
-				const page = this.getNodeParameter('page', i) as Number;
-
-				if (page) {
-					body.page = page;
-				}
-
-				/*
-				* Limit of the result
-				*/
-				const limit = this.getNodeParameter('limit', i) as Number;
-
-				if (limit) {
-					body.limit = limit;
 				}
 
 				/*
