@@ -48,13 +48,13 @@ export async function processFilter(filterName: string, filterRules: IDataObject
 				filterArray.push({
 					type: filterName,
 					field: filter.field,
-					value: filter.value.split(',')
+					value: filter.value.split(','),
 				});
 			} else {
 				filterArray.push({
 					type: filterName,
 					field: filter.field,
-					value: filter.value
+					value: filter.value,
 				});
 			}
 		});

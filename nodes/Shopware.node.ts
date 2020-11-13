@@ -371,7 +371,7 @@ export class Shopware implements INodeType {
 						body.filter = [{
 							type: 'multi',
 							operat: 'AND',
-							queries: bodyFilter
+							queries: bodyFilter,
 						}];
 					} else {
 						body.filter = bodyFilter;

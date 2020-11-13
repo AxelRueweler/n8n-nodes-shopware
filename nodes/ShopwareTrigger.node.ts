@@ -85,7 +85,7 @@ export class ShopwareTrigger implements INodeType {
 				const body = {
 					'name': name,
 					'eventName': topic,
-					'url': webhookUrl
+					'url': webhookUrl,
 				};
 
 				let responseData;
