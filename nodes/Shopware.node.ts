@@ -236,8 +236,8 @@ export class Shopware implements INodeType {
 
 					if (endpoints !== undefined) {
 						endpoints.forEach(function (endpoint) {
-							const endpointName = endpoint.path.replace("/", "");
-							const endpointPath = endpoint.path.replace("/", "");
+							const endpointName = endpoint.path.replace('/', '');
+							const endpointPath = endpoint.path.replace('/', '');
 							const endpointDescription = endpoint.description;
 
 							returnData.push({
@@ -272,7 +272,7 @@ export class Shopware implements INodeType {
 					const Ids = this.getNodeParameter('ids', i) as string;
 					if (Ids) {
 						body.ids = [];
-						Object.assign(body.ids, Ids.split("\n"));
+						Object.assign(body.ids, Ids.split('\n'));
 					}
 				}
 
@@ -341,7 +341,7 @@ export class Shopware implements INodeType {
 
 				/*
 				* Filter of the result
-				*	"filter": [
+				*	'filter': [
 				*		{ "type": "equals", "field": "id", "value": "04d0107ac065458da3a0fe0b9f9bc58c" ,
 				*		{ "type": "range", "field": "purchasePrice", "parameters": {"gt": 10, "lt": 80} },
 				*		{ "type": "equalsAny", "field": "id", "value": ["0c0995b393d74e91bdf00ffdf9bfb2a0", "0dccf6d3de6749b6b5ace4a58369cd3e"] }
@@ -369,8 +369,8 @@ export class Shopware implements INodeType {
 
 					if (bodyFilter.length > 1) {
 						body.filter = [{
-							type: "multi",
-							operator: "AND",
+							type: 'multi',
+							operat: 'AND',
 							queries: bodyFilter
 						}];
 					} else {

@@ -48,7 +48,7 @@ export async function processFilter(filterName: string, filterRules: IDataObject
 				filterArray.push({
 					type: filterName,
 					field: filter.field,
-					value: filter.value.split(",")
+					value: filter.value.split(',')
 				});
 			} else {
 				filterArray.push({
@@ -61,8 +61,8 @@ export async function processFilter(filterName: string, filterRules: IDataObject
 
 		if (filterArray.length > 1) {
 			Object.assign(bodyFilter, {
-				type: "multi",
-				operator: "OR",
+				type: 'multi',
+				operator: 'OR',
 				queries: filterArray
 			});
 		} else if (filterArray.length == 1) {
@@ -93,8 +93,8 @@ export async function processRangeFilter(filterName: string, filterRules: IDataO
 
 	if (filterArray.length > 1) {
 		Object.assign(bodyFilter, {
-			type: "multi",
-			operator: "OR",
+			type: 'multi',
+			operator: 'OR',
 			queries: filterArray
 		});
 	} else {
@@ -113,7 +113,7 @@ async function shopwareAuthRequest(this: IHookFunctions | IExecuteFunctions | IE
 	const body = {
 		client_secret: `${credentials.clientSecret}`,
 		client_id: `${credentials.clientId}`,
-		grant_type: "client_credentials",
+		grant_type: 'client_credentials',
 	};
 
 	const options: OptionsWithUri = {

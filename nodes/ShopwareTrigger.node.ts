@@ -83,9 +83,9 @@ export class ShopwareTrigger implements INodeType {
 				const endpoint = `/webhook`;
 				const name = 'n8n-' + topic.toLocaleLowerCase().replace(' ', '') + '-' + uuid();
 				const body = {
-					"name": name,
-					"eventName": topic,
-					"url": webhookUrl
+					'name': name,
+					'eventName': topic,
+					'url': webhookUrl
 				};
 
 				let responseData;
@@ -96,7 +96,7 @@ export class ShopwareTrigger implements INodeType {
 				}
 
 				try {
-					console.log("Get the webhooks");
+					console.log('Get the webhooks');
 					const webhooks = await shopwareApiRequest.call(this, 'GET', '/webhook', {});
 					const webhookData = this.getWorkflowStaticData('node');
 					webhooks.forEach(function (webhook: IDataObject) {
