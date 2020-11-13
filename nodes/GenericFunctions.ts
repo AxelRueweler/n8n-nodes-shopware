@@ -235,7 +235,19 @@ export async function shopwareApiRequest(this: IHookFunctions | IExecuteFunction
 			return responseData
 		}
 	} catch (error) {
-		handleShopwareApiRequestError(error);
+		if (error.response !== undefined && error.response.body && error.response.body.errors) {
+			let message = '';
+			if (typeof error.response.body.errors === 'object') {
+				for (const key of Object.keys(error.response.body.errors)) {
+					message += error.response.body.errors[key].status + ' - ' + error.response.body.errors[key].title + ' - ' + error.response.body.errors[key].detail;
+				}
+			} else {
+				message = `${error.response.body.errors} |`;
+			}
+			const errorMessage = `Shopware error response ` + message;
+			throw new Error(errorMessage);
+		}
+		throw error;
 	}
 }
 

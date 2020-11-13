@@ -303,7 +303,7 @@ export class Shopware implements INodeType {
 					//@ts-ignore
 					includes.entities.forEach(function (entity) {
 						const entityName = entity.entity;
-						const fields = entity.fields.split(',');
+						const fields = entity.fields.split('.')[1];
 
 						Object.assign(body.includes, { [entityName]: fields });
 					});
@@ -316,7 +316,7 @@ export class Shopware implements INodeType {
 
 					//@ts-ignore
 					associations.entities.forEach(function (association) {
-						Object.assign(body.associations, { [association.entity]: { 'total-count-mode': association.totalCountMode } });
+						Object.assign(body.associations, { [association.entity.split('.')[1]]: { 'total-count-mode': association.totalCountMode } });
 					});
 				}
 
@@ -359,7 +359,7 @@ export class Shopware implements INodeType {
 					}
 
 					if (filter.equals && Object.keys(filter.equals).length !== 0) {
-						bodyFilter.push(await processFilter('equals', filter.equal as IDataObject));
+						bodyFilter.push(await processFilter('equals', filter.equals as IDataObject));
 					}
 
 					if (filter.range && Object.keys(filter.range).length !== 0) {
