@@ -303,7 +303,11 @@ export class Shopware implements INodeType {
 					//@ts-ignore
 					includes.entities.forEach(function (entity) {
 						const entityName = entity.entity;
-						const fields = entity.fields.split('.')[1];
+						const fields:string[] = [];
+						
+						entity.fields.forEach(function(field:string){
+							fields.push(field.split('.')[1]);
+						});
 
 						Object.assign(body.includes, { [entityName]: fields });
 					});
