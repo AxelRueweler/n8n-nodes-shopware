@@ -12,10 +12,17 @@ import {
 
 import {
 	IDataObject,
+	INodePropertyOptions
 } from 'n8n-workflow';
 
 import console = require('console');
 import e = require('express');
+
+import {
+	IProduct,
+} from './ProductInterface';
+
+type requestableObjects = IProduct | IDataObject;
 
 export interface IFilterObject {
 	type?: string;
@@ -37,7 +44,7 @@ export interface IFilterRangeParametersObject {
 }
 
 
-export async function processFilter(filterName: string, filterRules: IDataObject) {
+export function processFilter(filterName: string, filterRules: IDataObject) {
 	const bodyFilter: IDataObject = {};
 	const filterArray: IFilterObject[] = [];
 
@@ -102,6 +109,66 @@ export async function processRangeFilter(filterName: string, filterRules: IDataO
 	}
 
 	return bodyFilter;
+}
+
+export async function getEntityIds(this: ILoadOptionsFunctions, endpoint: string, body: IDataObject) {
+	const returnData: INodePropertyOptions[] = [];
+	const responseData = await shopwareApiRequest.call(this, 'POST', '/search/' + endpoint, body);
+
+	if (responseData !== undefined) {
+		//@ts-ignore
+		responseData.forEach(function (currency) {
+			returnData.push({
+				name: currency.name,
+				value: currency.id,
+			} as INodePropertyOptions);
+		});
+	}
+
+	//@ts-ignore
+	return returnData;
+}
+
+export async function getEntityIdByFilter(this: ILoadOptionsFunctions | IExecuteFunctions, endpoint: string, filter: IDataObject) {
+	const bodyFilter: IDataObject[] = [];
+
+	if (filter.contains && Object.keys(filter.contains).length !== 0) {
+		bodyFilter.push(processFilter('contains', filter.contains as IDataObject));
+	}
+
+	if (filter.equalsAny && Object.keys(filter.equalsAny).length !== 0) {
+		bodyFilter.push(processFilter('equalsAny', filter.equalsAny as IDataObject));
+	}
+
+	if (filter.equals && Object.keys(filter.equals).length !== 0) {
+		bodyFilter.push(processFilter('equals', filter.equals as IDataObject));
+	}
+	
+	const bodyInclude = {includes: {[endpoint]: ["id"]}};
+	const bodyLimit = {limit: 1};
+
+	const getEntityIdBody: IDataObject = {};
+
+	if (bodyFilter.length > 1) {
+		getEntityIdBody.filter = [{
+			type: 'multi',
+			operat: 'AND',
+			queries: bodyFilter,
+		}];
+	} else {
+		getEntityIdBody.filter = bodyFilter;
+	}
+	
+	Object.assign(getEntityIdBody, bodyInclude);
+	Object.assign(getEntityIdBody, bodyLimit);
+
+	try {
+		//@ts-ignore
+		const returnData = await shopwareApiRequest.call(this, 'POST', '/search/' + endpoint, getEntityIdBody);
+		return returnData.pop().id;
+	} catch (error) {
+		throw error;
+	}
 }
 
 async function shopwareAuthRequest(this: IHookFunctions | IExecuteFunctions | IExecuteSingleFunctions | ILoadOptionsFunctions): Promise<any> { // tslint:disable-line:no-any
@@ -200,7 +267,7 @@ export async function shopwareApiRequestEndpoints(this: IHookFunctions | IExecut
 	}
 }
 
-export async function shopwareApiRequest(this: IHookFunctions | IExecuteFunctions | IExecuteSingleFunctions | ILoadOptionsFunctions, method: string, resource: string, query: IDataObject = {}, uri?: string, option: IDataObject = {}): Promise<any> { // tslint:disable-line:no-any
+export async function shopwareApiRequest(this: IHookFunctions | IExecuteFunctions | IExecuteSingleFunctions | ILoadOptionsFunctions, method: string, resource: string, query: requestableObjects = {}, uri?: string, option: IDataObject = {}): Promise<any> { // tslint:disable-line:no-any
 	const credentials = this.getCredentials('shopwareApi');
 	if (credentials === undefined) {
 		throw new Error('No credentials got returned!');
@@ -235,7 +302,19 @@ export async function shopwareApiRequest(this: IHookFunctions | IExecuteFunction
 			return responseData
 		}
 	} catch (error) {
-		handleShopwareApiRequestError(error);
+		if (error.response !== undefined && error.response.body && error.response.body.errors) {
+			let message = '';
+			if (typeof error.response.body.errors === 'object') {
+				for (const key of Object.keys(error.response.body.errors)) {
+					message += error.response.body.errors[key].status + ' - ' + error.response.body.errors[key].title + ' - ' + error.response.body.errors[key].detail;
+				}
+			} else {
+				message = `${error.response.body.errors} |`;
+			}
+			const errorMessage = `Shopware error response ` + message;
+			throw new Error(errorMessage);
+		}
+		throw error;
 	}
 }
 
@@ -254,3 +333,14 @@ async function handleShopwareApiRequestError(error: any) {
 	}
 	throw error;
 }
+
+export function removeEmptyProperties(obj: object) {
+	Object.keys(obj).forEach(function(key) {
+		// @ts-ignore
+		if (obj[key] && typeof obj[key] === 'object') removeEmptyProperties(obj[key]); //recursive for objects
+		// @ts-ignore
+			else if (obj[key] == null || obj[key]== "") delete obj[key];         //remove empty properties
+		// @ts-ignore	
+		if (typeof obj[key] === 'object' && Object.keys(obj[key]).length == 0) delete obj[key]; //remove empty objects
+	});
+};
