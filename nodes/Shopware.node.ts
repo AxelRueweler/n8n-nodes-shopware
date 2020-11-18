@@ -7,6 +7,8 @@
  * - Create capabilities (might be hard because of the deep data structure of Shopware 6)
  * - Caching of access token for the credentials so that all the nodes in one workflow can access it
  * - Better error handling
+ * - Rewrite forEach to for Loops - Old PHP habbits...
+ * 
  * 
  * Needed Features for a better integration:
  * - loadOptionsMethod based on the value of other fields. At the moment the selection of fields and the associations is quite long.
@@ -15,10 +17,7 @@
  */
 
 import {
-	BINARY_ENCODING,
 	IExecuteFunctions,
-	IExecuteSingleFunctions,
-	IHookFunctions,
 	ILoadOptionsFunctions,
 } from 'n8n-core';
 
@@ -37,8 +36,7 @@ import {
 	processFilter,
 	processRangeFilter,
 	getEntityIds,
-	getEntityIdByFilter,
-	removeEmptyProperties,
+	getEntityIdsByFilter,
 } from './GenericFunctions';
 
 import {
@@ -51,11 +49,8 @@ import {
 } from './ProductDescription';
 
 import {
-	IProduct,
-	IPrice,
-	IListPrice,
-	IProductTranslation,
-} from './ProductInterface';
+	getProductCreateOrUpdateBody,
+} from './ProductFunctions'
 
 
 require('console');
@@ -100,6 +95,11 @@ export class Shopware implements INodeType {
 						name: 'Create',
 						value: 'create',
 						description: 'Create an entity',
+					},
+					{
+						name: 'Update',
+						value: 'update',
+						description: 'Update an entity',
 					},
 					{
 						name: 'Get',
@@ -325,113 +325,26 @@ export class Shopware implements INodeType {
 		const length = items.length as unknown as number;
 		let responseData;
 		const operation = this.getNodeParameter('operation', 0) as string;
+		const resource = this.getNodeParameter('resource', 0) as string;
+
 		for (let i = 0; i < length; i++) {
 			if (operation === 'create') {
-				const resource = this.getNodeParameter('resource', i) as string;
-
 				if(resource === 'product') {
-					/*
-					 * Required Fields
-					 */ 
-					const name = this.getNodeParameter('name', i) as string;
-					const productNumber = this.getNodeParameter('productNumber', i) as string;
-					const taxIdSearch = this.getNodeParameter('taxId', i) as IDataObject;
-					const stock = this.getNodeParameter('stock', i) as number;
-					const tmpTranslations = this.getNodeParameter('translations', i) as string;
-					const tmpPrices = this.getNodeParameter('prices', i) as IDataObject[];
-					
-					const translations: IProductTranslation[] = [];
-					// @ts-ignore
-					tmpTranslations.translation.forEach(function(tmpTranslation) {
-						const translation = {
-							languageId: tmpTranslation.languageId,
-							name: tmpTranslation.name, 
-							keywords: tmpTranslation.keywords, 
-							description: tmpTranslation.description, 
-							metaTitle: tmpTranslation.metaTitle, 
-							metaDescription: tmpTranslation.metaDescription, 
-							packUnit: tmpTranslation.packUnit, 
-							packUnitPlural: tmpTranslation.packUnitPlural, 
-							customSearchKeywords: tmpTranslation.customSearchKeywords.split(','), 
-						} as IProductTranslation;
-
-						removeEmptyProperties(translation);
-
-						translations.push(translation);
-					}, this);
-
-					const prices: IPrice[] = [];
-					// @ts-ignore
-					tmpPrices.price.forEach(function(tmpPrice) {
-						const price = {
-							currencyId: tmpPrice.currencyId,
-							net: tmpPrice.net,
-							gross: tmpPrice.gross,
-							linked: tmpPrice.linked,
-						} as IPrice;
-
-						if(tmpPrice.listPrice) {
-							price.listPrice = {
-								currencyId: tmpPrice.currencyId,
-								net: tmpPrice.listPriceNet,
-								gross: tmpPrice.listPriceGross,
-								linked: tmpPrice.listPriceLinked,
-							} as IListPrice;
-						}
-
-						prices.push(price);
-					}, this);
-
-					const taxId = await getEntityIdByFilter.call(this, 'tax', taxIdSearch);
-					
-					let body: IProduct = {
-						name: name,
-						productNumber: productNumber,
-						taxId: taxId,
-						stock: stock,
-						price: prices,
-						translations: translations,
-					}
-
-					/*
-					 * Optional Fields
-					 */
-					const keywords = this.getNodeParameter('keywords', i) as string;
-					if(keywords) {
-						Object.assign(body, {keywords: keywords});
-					}
-
-					const metaTitle = this.getNodeParameter('metaTitle', i) as string;
-					if(metaTitle) {
-						Object.assign(body, {metaTitle: metaTitle});
-					}
-
-					const metaDescription = this.getNodeParameter('metaDescription', i) as string;
-					if(metaDescription) {
-						Object.assign(body, {metaDescription: metaDescription});
-					}
-
-					const packUnit = this.getNodeParameter('packUnit', i) as string;
-					if(packUnit) {
-						Object.assign(body, {packUnit: packUnit});
-					}
-
-					const packUnitPlural = this.getNodeParameter('packUnitPlural', i) as string;
-					if(packUnitPlural) {
-						Object.assign(body, {packUnitPlural: packUnitPlural});
-					}
- 
-					const customSearchKeywords = this.getNodeParameter('customSearchKeywords', i) as string;
-					if(customSearchKeywords) {
-						Object.assign(body, {customSearchKeywords: customSearchKeywords.split(',')});
-					}
-
+					const body = await getProductCreateOrUpdateBody.call(this, i, operation);
 					responseData = await shopwareApiRequest.call(this, 'POST', '/' + resource, body);
 				}
-			}
+			} else if (operation === 'update') {
+				if(resource === 'product') {
+					const productIdsSearch = this.getNodeParameter('productIds', i) as IDataObject;
+					const productIds = await getEntityIdsByFilter.call(this, 'product', productIdsSearch);
 
-			const body: IDataObject = {};
-			if (operation === 'get' || operation === 'getAll') {
+					for (const productId of productIds) {
+						const body = await getProductCreateOrUpdateBody.call(this, i, operation);
+						responseData = await shopwareApiRequest.call(this, 'PATCH', '/' + resource + '/' + productId, body);
+					};
+				}
+			} else if (operation === 'get' || operation === 'getAll') {
+				const body: IDataObject = {};
 				if (operation === 'get') {
 					/*
 					* Load a specific list of ids

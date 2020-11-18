@@ -19,10 +19,11 @@ import console = require('console');
 import e = require('express');
 
 import {
-	IProduct,
+	IProductCreate,
+	IProductUpdate,
 } from './ProductInterface';
 
-type requestableObjects = IProduct | IDataObject;
+type requestableObjects = IProductCreate | IProductUpdate | IDataObject;
 
 export interface IFilterObject {
 	type?: string;
@@ -65,7 +66,7 @@ export function processFilter(filterName: string, filterRules: IDataObject) {
 				});
 			}
 		});
-
+ 
 		if (filterArray.length > 1) {
 			Object.assign(bodyFilter, {
 				type: 'multi',
@@ -129,7 +130,25 @@ export async function getEntityIds(this: ILoadOptionsFunctions, endpoint: string
 	return returnData;
 }
 
-export async function getEntityIdByFilter(this: ILoadOptionsFunctions | IExecuteFunctions, endpoint: string, filter: IDataObject) {
+export async function getEntityIdsByFilter(this: ILoadOptionsFunctions | IExecuteFunctions, endpoint: string, filter: IDataObject, limit: boolean = true): Promise<Array<string>> { // tslint:disable-line:no-any
+	const response = await getEntityIdResponseByFilter.call(this, endpoint, filter, false);
+console.log(response);
+	const returnData:Array<string> = [];
+
+	response.forEach((responseItem) => {
+		returnData.push(responseItem.id);
+	});
+
+	return returnData;
+}
+
+export async function getEntityIdByFilter(this: ILoadOptionsFunctions | IExecuteFunctions, endpoint: string, filter: IDataObject, limit: boolean = true): Promise<string> { // tslint:disable-line:no-any
+	const response = await getEntityIdResponseByFilter.call(this, endpoint, filter, true);
+
+	return response.pop().id;
+}
+
+async function getEntityIdResponseByFilter(this: ILoadOptionsFunctions | IExecuteFunctions, endpoint: string, filter: IDataObject, limit: boolean = true): Promise<Array<any>> { // tslint:disable-line:no-any
 	const bodyFilter: IDataObject[] = [];
 
 	if (filter.contains && Object.keys(filter.contains).length !== 0) {
@@ -144,10 +163,15 @@ export async function getEntityIdByFilter(this: ILoadOptionsFunctions | IExecute
 		bodyFilter.push(processFilter('equals', filter.equals as IDataObject));
 	}
 	
-	const bodyInclude = {includes: {[endpoint]: ["id"]}};
-	const bodyLimit = {limit: 1};
-
 	const getEntityIdBody: IDataObject = {};
+
+	const bodyInclude = {includes: {[endpoint]: ["id"]}};
+	Object.assign(getEntityIdBody, bodyInclude);
+
+	if(limit) {
+		const bodyLimit = {limit: 1};
+		Object.assign(getEntityIdBody, bodyLimit);
+	}
 
 	if (bodyFilter.length > 1) {
 		getEntityIdBody.filter = [{
@@ -158,14 +182,10 @@ export async function getEntityIdByFilter(this: ILoadOptionsFunctions | IExecute
 	} else {
 		getEntityIdBody.filter = bodyFilter;
 	}
-	
-	Object.assign(getEntityIdBody, bodyInclude);
-	Object.assign(getEntityIdBody, bodyLimit);
 
 	try {
-		//@ts-ignore
-		const returnData = await shopwareApiRequest.call(this, 'POST', '/search/' + endpoint, getEntityIdBody);
-		return returnData.pop().id;
+		// @ts-ignore
+		return shopwareApiRequest.call(this, 'POST', '/search/' + endpoint, getEntityIdBody);
 	} catch (error) {
 		throw error;
 	}

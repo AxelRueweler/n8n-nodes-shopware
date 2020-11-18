@@ -13,12 +13,8 @@ export interface IProduct {
     unitId?: string;
     taxId?: string;
     coverId?: string;
-    name: string;
     productMediaVersionId?: string;
     deliveryTimeId?: string;
-    price: IPrice[]; // ✔
-    productNumber: string; // ✔
-    stock: number; // ✔
     restockTime?: number;
     autoIncrement?: number;
     active?: boolean;
@@ -80,6 +76,23 @@ export interface IProduct {
     swagCustomizedProductsTemplateVersionId?: string;
 }
 
+export interface IProductCreate extends IProduct {
+    name: string;
+    price: IPrice[];
+    productNumber: string;
+    stock: number;
+}
+
+/*
+ * Updating products uses the same parameters but without any required fields
+ */
+export interface IProductUpdate extends IProduct{
+    name?: string;
+    price?: IPrice[];
+    productNumber?: string;
+    stock?: number;
+}
+
 
 export interface IAssociationToMany {
     type: 'toMany';
@@ -97,7 +110,7 @@ export interface ICustomSearchKeyword {
 
 export interface IProductTranslation {
     languageId: string
-    name?: string; //translatable // ✔
+    name?: string; //translatable
     keywords?: string; //translatable
     description?: string; //translatable
     metaTitle?: string; //translatable
