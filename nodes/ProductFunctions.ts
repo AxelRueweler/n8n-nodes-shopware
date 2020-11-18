@@ -67,46 +67,53 @@ export async function getProductCreateOrUpdateBody(this: ILoadOptionsFunctions |
 			price: prices,
 		} as IProductCreate;
 	} else if (operation === 'update') {
-		const baseFields = this.getNodeParameter('baseFields', i) as IDataObject[];
+		const baseFields = this.getNodeParameter('baseFields', i) as object[];
 
 		body = {} as IProductUpdate;
 
 		for (const [key, value] of Object.entries(baseFields)) {
-		/*	if(key === 'prices') {
+			if(key === 'prices') {
 				const prices: IPrice[] = [];
 
-				for(const tmpPrice in value.price) {
-					const price = {
-						currencyId: tmpPrice.currencyId,
-						net: tmpPrice.net,
-						gross: tmpPrice.gross,
-						linked: tmpPrice.linked,
-					} as IPrice;
-		
-					if(tmpPrice.listPrice) {
-						price.listPrice = {
+				// @ts-ignore
+				for(const tmpPrice of value.price) {
+					if(tmpPrice !== undefined && tmpPrice !== null) {
+						const price = {
 							currencyId: tmpPrice.currencyId,
-							net: tmpPrice.listPriceNet,
-							gross: tmpPrice.listPriceGross,
-							linked: tmpPrice.listPriceLinked,
-						} as IListPrice;
+							net: tmpPrice.net,
+							gross: tmpPrice.gross,
+							linked: tmpPrice.linked,
+						} as IPrice;
+			
+						if(price.listPrice) {
+							price.listPrice = {
+								currencyId: tmpPrice.currencyId,
+								net: tmpPrice.listPriceNet,
+								gross: tmpPrice.listPriceGross,
+								linked: tmpPrice.listPriceLinked,
+							} as IListPrice;
+						}
+						prices.push(price);
 					}
-		
-					prices.push(price);
 				}
 		
-				// @ts-ignore
 				if(prices.length !== 0) {
-					// @ts-ignore
 					Object.assign(body, {price: prices});	
 				}
-			}*/
-			if(key) {
+			}else if(key === 'customSearchKeywords') {
+				// @ts-ignore
+				Object.assign(body, {customSearchKeywords: value.split(',')});
+			} else if(key) {
+				// Catch-All for singe-value fields without any special conversion
 				Object.assign(body, {[key]: value});
 			}
 		};
+
+		console.log(body);
+
 	}
 
+	console.log(body);
 	/*
 	 * Optional Fields
 	 */
@@ -115,8 +122,9 @@ export async function getProductCreateOrUpdateBody(this: ILoadOptionsFunctions |
 	for (const [key, value] of Object.entries(additionalFields)) {
 		if(key === 'translations'){
 			const translations: IProductTranslation[] = [];
+			
 			// @ts-ignore
-			value.forEach(function(tmpTranslation) {
+			value.translation.forEach(function(tmpTranslation) {
 				const translation = {
 					languageId:  tmpTranslation.languageId,
 					name: tmpTranslation.name, 
@@ -134,40 +142,15 @@ export async function getProductCreateOrUpdateBody(this: ILoadOptionsFunctions |
 				translations.push(translation);
 			}, this);
 		
-			if(translations.length == 0) {
+			if(translations.length !== 0) {
 				Object.assign(body, {translations: translations});	
 			}
-		}
-
-	
-		const keywords = this.getNodeParameter('keywords', i) as string;
-		if(keywords) {
-			Object.assign(body, {keywords: keywords});
-		}
-	
-		const metaTitle = this.getNodeParameter('metaTitle', i) as string;
-		if(metaTitle) {
-			Object.assign(body, {metaTitle: metaTitle});
-		}
-	
-		const metaDescription = this.getNodeParameter('metaDescription', i) as string;
-		if(metaDescription) {
-			Object.assign(body, {metaDescription: metaDescription});
-		}
-	
-		const packUnit = this.getNodeParameter('packUnit', i) as string;
-		if(packUnit) {
-			Object.assign(body, {packUnit: packUnit});
-		}
-	
-		const packUnitPlural = this.getNodeParameter('packUnitPlural', i) as string;
-		if(packUnitPlural) {
-			Object.assign(body, {packUnitPlural: packUnitPlural});
-		}
-	
-		const customSearchKeywords = this.getNodeParameter('customSearchKeywords', i) as string;
-		if(customSearchKeywords) {
-			Object.assign(body, {customSearchKeywords: customSearchKeywords.split(',')});
+		} else if(key === 'customSearchKeywords') {
+			// @ts-ignore
+			Object.assign(body, {customSearchKeywords: value.split(',')});
+		} else if(key) {
+			// Catch-All for singe-value fields without any special conversion
+			Object.assign(body, {[key]: value});
 		}
 	}
 
