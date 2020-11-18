@@ -141,6 +141,14 @@ export async function getProductCreateOrUpdateBody(this: ILoadOptionsFunctions |
 			if(translations.length !== 0) {
 				Object.assign(body, {translations: translations});	
 			}
+		} else if(key === 'packageData') {
+			for(const [keyPackageData, valuePackageData] of Object.entries(value)){
+				Object.assign(body, {[keyPackageData]: valuePackageData});
+			}
+		} else if(key === 'additionalStockData') {
+			for(const [keyAdditionalStockData, valueAdditionalStockData] of Object.entries(value)){
+				Object.assign(body, {[keyAdditionalStockData]: valueAdditionalStockData});
+			}
 		} else if(key === 'customSearchKeywords') {
 			// @ts-ignore
 			Object.assign(body, {customSearchKeywords: value.split(',')});
