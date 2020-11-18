@@ -130,9 +130,9 @@ export async function getEntityIds(this: ILoadOptionsFunctions, endpoint: string
 	return returnData;
 }
 
-export async function getEntityIdsByFilter(this: ILoadOptionsFunctions | IExecuteFunctions, endpoint: string, filter: IDataObject, limit: boolean = true): Promise<Array<string>> { // tslint:disable-line:no-any
+export async function getEntityIdsByFilter(this: ILoadOptionsFunctions | IExecuteFunctions, endpoint: string, filter: IDataObject): Promise<Array<string>> { // tslint:disable-line:no-any
 	const response = await getEntityIdResponseByFilter.call(this, endpoint, filter, false);
-console.log(response);
+
 	const returnData:Array<string> = [];
 
 	response.forEach((responseItem) => {
@@ -142,7 +142,7 @@ console.log(response);
 	return returnData;
 }
 
-export async function getEntityIdByFilter(this: ILoadOptionsFunctions | IExecuteFunctions, endpoint: string, filter: IDataObject, limit: boolean = true): Promise<string> { // tslint:disable-line:no-any
+export async function getEntityIdByFilter(this: ILoadOptionsFunctions | IExecuteFunctions, endpoint: string, filter: IDataObject): Promise<string> { // tslint:disable-line:no-any
 	const response = await getEntityIdResponseByFilter.call(this, endpoint, filter, true);
 
 	return response.pop().id;

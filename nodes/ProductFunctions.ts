@@ -108,12 +108,8 @@ export async function getProductCreateOrUpdateBody(this: ILoadOptionsFunctions |
 				Object.assign(body, {[key]: value});
 			}
 		};
-
-		console.log(body);
-
 	}
 
-	console.log(body);
 	/*
 	 * Optional Fields
 	 */

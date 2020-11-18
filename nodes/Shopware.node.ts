@@ -259,7 +259,7 @@ export class Shopware implements INodeType {
 					const endpoints = await shopwareApiRequestEndpoints.call(this);
 
 					if (endpoints !== undefined) {
-						endpoints.forEach(function (endpoint) {
+						for(const endpoint of endpoints) {
 							const endpointName = endpoint.path.replace('/', '');
 							const endpointPath = endpoint.path.replace('/', '');
 							const endpointDescription = endpoint.description;
@@ -269,7 +269,7 @@ export class Shopware implements INodeType {
 								value: endpointPath,
 								description: endpointDescription,
 							});
-						});
+						};
 					}
 					return returnData;
 				} catch (e) {
@@ -380,17 +380,22 @@ export class Shopware implements INodeType {
 				const includes = this.getNodeParameter('includes', i) as IDataObject;
 				if (includes.entities && includes.entities !== undefined) {
 					body.includes = {};
-					//@ts-ignore
-					includes.entities.forEach(function (entity) {
-						const entityName = entity.entity;
-						const fields:string[] = [];
-						
-						entity.fields.forEach(function(field:string){
-							fields.push(field.split('.')[1]);
-						});
 
-						Object.assign(body.includes, { [entityName]: fields });
-					});
+					//@ts-ignore
+					for (const entity of includes.entities) {
+						if(entity !== undefined && entity !== null) {
+							//@ts-ignore
+							const entityName = entity.entity;
+							const fields:string[] = [];
+
+							//@ts-ignore
+							for(const field:string of entity.fields) {
+									fields.push(field.split('.')[1]);
+							}
+
+							Object.assign(body.includes, { [entityName]: fields });
+						}
+					};
 				}
 
 
@@ -399,9 +404,12 @@ export class Shopware implements INodeType {
 					body.associations = {};
 
 					//@ts-ignore
-					associations.entities.forEach(function (association) {
-						Object.assign(body.associations, { [association.entity.split('.')[1]]: { 'total-count-mode': association.totalCountMode } });
-					});
+					for(const association:object of associations.entities) {
+						if(association !== undefined && association !== null) {
+							//@ts-ignore
+							Object.assign(body.associations, { [association.entity.split('.')[1]]: { 'total-count-mode': association.totalCountMode } });
+						}
+					}
 				}
 
 				/*
