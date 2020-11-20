@@ -139,13 +139,23 @@ export async function getEntityIdsByFilter(this: ILoadOptionsFunctions | IExecut
 		returnData.push(responseItem.id);
 	});
 
+	if(returnData.length > 0) {
+		return returnData;
+	} else {
+		throw Error('No Ids found for: ' + endpoint)
+	}
+
 	return returnData;
 }
 
 export async function getEntityIdByFilter(this: ILoadOptionsFunctions | IExecuteFunctions, endpoint: string, filter: IDataObject): Promise<string> { // tslint:disable-line:no-any
 	const response = await getEntityIdResponseByFilter.call(this, endpoint, filter, true);
-
-	return response.pop().id;
+	if(response[0] !== undefined && response[0].id !== undefined) { 
+		const id = response.pop().id;
+		return id;
+	} else {
+		throw Error('No Id found for: ' + endpoint)
+	}
 }
 
 async function getEntityIdResponseByFilter(this: ILoadOptionsFunctions | IExecuteFunctions, endpoint: string, filter: IDataObject, limit: boolean = true): Promise<Array<any>> { // tslint:disable-line:no-any
@@ -294,7 +304,13 @@ export async function shopwareApiRequest(this: IHookFunctions | IExecuteFunction
 	}
 
 	const auth = await shopwareAuthRequest.call(this);
-	const accessToken = auth.access_token;
+	let accessToken: string = '';
+	if(auth !== undefined && auth.access_token !== '') {
+		accessToken = auth.access_token;
+	} else {
+		throw Error('No connection to Shopware API');
+	}
+
 
 	const headerWithAuthentication = Object.assign({}, { 'authorization': accessToken });
 

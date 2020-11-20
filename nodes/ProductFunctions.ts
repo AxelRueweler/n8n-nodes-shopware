@@ -143,7 +143,16 @@ export async function getProductCreateOrUpdateBody(this: ILoadOptionsFunctions |
 			}
 		} else if(key === 'packageData') {
 			for(const [keyPackageData, valuePackageData] of Object.entries(value)){
-				Object.assign(body, {[keyPackageData]: valuePackageData});
+				if(keyPackageData === 'unitId') {
+					console.log(valuePackageData);
+
+					// @ts-ignore
+					const unitId = await getEntityIdByFilter.call(this, 'unit', valuePackageData);
+					console.log(unitId);
+					Object.assign(body, {unitId: unitId});
+				} else {
+					Object.assign(body, {[keyPackageData]: valuePackageData});
+				}
 			}
 		} else if(key === 'additionalStockData') {
 			for(const [keyAdditionalStockData, valueAdditionalStockData] of Object.entries(value)){
