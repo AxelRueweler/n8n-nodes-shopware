@@ -7,8 +7,11 @@
  * - Create capabilities (might be hard because of the deep data structure of Shopware 6)
  * - Caching of access token for the credentials so that all the nodes in one workflow can access it
  * - Better error handling
- * - Rewrite forEach to for Loops - Old PHP habbits...
- * 
+ * - Consistent handling of loops
+ * - Media Assets
+ *  - Title and alt tags
+ * - Variation handling
+ * - Manufactures 
  * 
  * Needed Features for a better integration:
  * - loadOptionsMethod based on the value of other fields. At the moment the selection of fields and the associations is quite long.
@@ -26,7 +29,8 @@ import {
 	INodeType,
 	INodeTypeDescription,
 	IDataObject,
-	INodePropertyOptions
+	INodePropertyOptions,
+	IBinaryKeyData
 } from 'n8n-workflow';
 
 import {
@@ -49,8 +53,14 @@ import {
 } from './ProductDescription';
 
 import {
+	mediaFields,
+} from 	'./MediaDescription';
+
+import {
 	getProductCreateOrUpdateBody,
 } from './ProductFunctions'
+
+import { setMedia } from './MediaFunctions';
 
 
 require('console');
@@ -232,6 +242,8 @@ export class Shopware implements INodeType {
 			...filterFields,
 
 			...productFields,
+
+			...mediaFields,
 		]
 	};
 
@@ -316,6 +328,26 @@ export class Shopware implements INodeType {
 					throw e;
 				}
 			},
+
+			async getMediaFolders(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				let returnData: INodePropertyOptions[] = [];
+
+				try {
+					const body = {
+						"includes": {"language":["name","id"]},
+						"total-count-mode": "0",
+						"sort": [{ "field": "name", "order": "ASC", "naturalSorting": true }],
+						"filter": [],
+					} as IDataObject
+
+					returnData = await getEntityIds.call(this, 'media-folder', body);
+
+					//@ts-ignore
+					return returnData;
+				} catch (e) {
+					throw e;
+				}
+			},
 		},
 	};
 
@@ -332,6 +364,48 @@ export class Shopware implements INodeType {
 				if(resource === 'product') {
 					const body = await getProductCreateOrUpdateBody.call(this, i, operation);
 					responseData = await shopwareApiRequest.call(this, 'POST', '/' + resource, body);
+				} else if(resource === 'media') {
+					// First create the media
+					// media?_response=true, {"mediaFolderId":"cef84bd4991c4055a7b02388dc49ca70" }
+					const mediaFolder = this.getNodeParameter('mediaFolder', i) as IDataObject;
+					const fileName = this.getNodeParameter('fileName', i) as string;
+					const overrideMode = this.getNodeParameter('overrideMode', i) as string;
+
+					const mediaFolderbody = {mediaFolderId: mediaFolder}
+					responseData = await shopwareApiRequest.call(this, 'POST', '/media', mediaFolderbody, {_response: true});
+
+					// Then upload the file
+					// https://denkteich-test.shopware.store/api/v3/_action/media/3278663dfbfd4ed7a22c7c562984e270/upload?extension=jpg&fileName=113063098_A_519NEU
+					if(responseData.id !== undefined){
+						const isBinaryData = this.getNodeParameter('isBinaryData', i) as string;
+						const mediaId = responseData.id;
+
+						if (isBinaryData) {
+							const binaryPropertyName = this.getNodeParameter('binaryPropertyName', 0) as string;
+	
+							if (items[i].binary === undefined) {
+								throw new Error('No binary data exists on item!');
+							}
+							//@ts-ignore
+							if (items[i].binary[binaryPropertyName] === undefined) {
+								throw new Error(`No binary data property "${binaryPropertyName}" does not exists on item!`);
+							}
+	
+							const binaryData = (items[i].binary as IBinaryKeyData)[binaryPropertyName];
+
+							responseData = await setMedia.call(this, mediaId, binaryData, fileName, overrideMode)
+	
+							returnData.push.apply(returnData, responseData as IDataObject[]);
+						} else {
+							const fileUrl = this.getNodeParameter('fileUrl', i) as string;
+
+							responseData = await setMedia.call(this, mediaId, fileUrl, fileName, overrideMode);
+	
+							if(responseData !== undefined) {
+								returnData.push.apply(returnData, responseData.entries as IDataObject[]);
+							}
+						}
+					}
 				}
 			} else if (operation === 'update') {
 				if(resource === 'product') {

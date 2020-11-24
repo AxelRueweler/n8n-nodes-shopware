@@ -297,7 +297,7 @@ export async function shopwareApiRequestEndpoints(this: IHookFunctions | IExecut
 	}
 }
 
-export async function shopwareApiRequest(this: IHookFunctions | IExecuteFunctions | IExecuteSingleFunctions | ILoadOptionsFunctions, method: string, resource: string, query: requestableObjects = {}, uri?: string, option: IDataObject = {}): Promise<any> { // tslint:disable-line:no-any
+export async function shopwareApiRequest(this: IHookFunctions | IExecuteFunctions | IExecuteSingleFunctions | ILoadOptionsFunctions, method: string, resource: string, body: any = {}, query: requestableObjects = {}, uri?: string, option: IDataObject = {}, header: IDataObject = {}): Promise<any> { // tslint:disable-line:no-any
 	const credentials = this.getCredentials('shopwareApi');
 	if (credentials === undefined) {
 		throw new Error('No credentials got returned!');
@@ -311,19 +311,22 @@ export async function shopwareApiRequest(this: IHookFunctions | IExecuteFunction
 		throw Error('No connection to Shopware API');
 	}
 
+	let headerWithAuthentication = { 'authorization': accessToken };
 
-	const headerWithAuthentication = Object.assign({}, { 'authorization': accessToken });
+	headerWithAuthentication = Object.assign({}, headerWithAuthentication, header);
 
-	const options: OptionsWithUri = {
+	let options: OptionsWithUri = {
 		headers: headerWithAuthentication,
 		method: method,
-		qs: '',
+		qs: query,
 		uri: `https://${credentials.domain}/api/v3${resource}`,
-		body: query,
+		body: body,
 		json: true,
 	};
 
-	console.log(JSON.stringify(options));
+	options = Object.assign({}, options, option);
+
+	console.log(options);
 
 	try {
 		const responseData = await this.helpers.request!(options);
@@ -331,24 +334,34 @@ export async function shopwareApiRequest(this: IHookFunctions | IExecuteFunction
 		* TODO - Write Meta-Data to all the rows
 		* Important - Write Access does not result in response data!
 		*/
-		if (responseData !== undefined) {
+		if (responseData !== undefined && responseData.data !== undefined) {
 			return responseData.data;
 		} else {
-			console.log('empty response')
 			return responseData
 		}
 	} catch (error) {
-		if (error.response !== undefined && error.response.body && error.response.body.errors) {
+		// When uploading existing media assets the response body is not parsed
+		if(error.response !== undefined && error.response.body && error.response.body.errors === undefined) {
+			error.response.body = JSON.parse(error.response.body);
+		}
+		
+		if(error.response !== undefined && error.response.body && error.response.body.errors) {
 			let message = '';
-			if (typeof error.response.body.errors === 'object') {
+			let name = '';
+		
+			if(typeof error.response.body.errors === 'object') {
 				for (const key of Object.keys(error.response.body.errors)) {
 					message += error.response.body.errors[key].status + ' - ' + error.response.body.errors[key].title + ' - ' + error.response.body.errors[key].detail;
+					name = error.response.body.errors[key].code;
 				}
 			} else {
 				message = `${error.response.body.errors} |`;
 			}
 			const errorMessage = `Shopware error response ` + message;
-			throw new Error(errorMessage);
+
+			const newError = new Error(errorMessage);
+			newError.name = name;
+			throw newError;
 		}
 		throw error;
 	}
