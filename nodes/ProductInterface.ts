@@ -35,7 +35,7 @@ export interface IProduct {
     manufacturerNumber?: string;
     markAsTopseller?: boolean;
     maxPurchase?: number;
-    media?: IAssociationToMany;
+    media?: IProductMedia;
     minPurchase?: number;
     options?: IAssociationToMany;
     orderLineItems?: IAssociationToMany;
@@ -94,12 +94,10 @@ export interface IProductUpdate extends IProduct{
 
 
 export interface IAssociationToMany {
-    type: 'toMany';
     [key: string]: GenericValue | GenericValue[];
 };
 
 export interface IAssociationToOne {
-    type: 'toOne';
     [key: string]: GenericValue | GenericValue[];
 };
 
@@ -132,4 +130,9 @@ export interface IListPrice {
     net?: number;
     gross?: number;
     linked?: boolean;
+}
+
+export interface IProductMedia {
+    mediaId: string;
+    position: number;
 }

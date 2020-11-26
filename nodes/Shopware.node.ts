@@ -11,7 +11,12 @@
  * - Media Assets
  *  - Title and alt tags
  * - Variation handling
- * - Manufactures 
+ * - Manufactures  
+ * - Guard against to many updates
+ * - Media assignment
+ *  - Cover Assignment
+ *  - Replace all assigments
+ *  - Search for Media and assign it all
  * 
  * Needed Features for a better integration:
  * - loadOptionsMethod based on the value of other fields. At the moment the selection of fields and the associations is quite long.
@@ -393,16 +398,15 @@ export class Shopware implements INodeType {
 	
 							const binaryData = (items[i].binary as IBinaryKeyData)[binaryPropertyName];
 
-							responseData = await setMedia.call(this, mediaId, binaryData, fileName, overrideMode)
-	
-							returnData.push.apply(returnData, responseData as IDataObject[]);
+							const mediaResponseData = await setMedia.call(this, mediaId, binaryData, fileName, overrideMode);
+							returnData.push.apply(returnData, [mediaResponseData] as IDataObject[]); // Should this already be returned as an array?
 						} else {
 							const fileUrl = this.getNodeParameter('fileUrl', i) as string;
 
-							responseData = await setMedia.call(this, mediaId, fileUrl, fileName, overrideMode);
+							const mediaResponseData  = await setMedia.call(this, mediaId, fileUrl, fileName, overrideMode);
 	
 							if(responseData !== undefined) {
-								returnData.push.apply(returnData, responseData.entries as IDataObject[]);
+								returnData.push.apply(returnData, [mediaResponseData] as IDataObject[]);
 							}
 						}
 					}
@@ -557,6 +561,7 @@ export class Shopware implements INodeType {
 			}
 		}
 
-		return [this.helpers.returnJsonArray(responseData)];
+		console.log(returnData);
+		return [this.helpers.returnJsonArray(returnData)];
 	}
 }

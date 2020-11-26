@@ -13,7 +13,7 @@ import {
 
 import { shopwareApiRequest } from './GenericFunctions';
 
-export async function setMedia(this: IHookFunctions | IExecuteFunctions | IExecuteSingleFunctions | ILoadOptionsFunctions, mediaId: string, file: string | IBinaryData, optinalFileName: string,  overrideMode: string) {
+export async function setMedia(this: IHookFunctions | IExecuteFunctions | IExecuteSingleFunctions | ILoadOptionsFunctions, mediaId: string, file: string | IBinaryData, optinalFileName: string,  overrideMode: string): Promise<any> {
 	let fileName: string = '';
 	let extension: string = '';
 	const query: IDataObject = {};
@@ -70,7 +70,13 @@ export async function setMedia(this: IHookFunctions | IExecuteFunctions | IExecu
 	}
 
 	try {
-		return await shopwareApiRequest.call(this, 'POST', '/_action/media/' + mediaId + '/upload', body, query, '' , option, header);
+		await shopwareApiRequest.call(this, 'POST', '/_action/media/' + mediaId + '/upload', body, query, '' , option, header);
+
+		return {
+			fileName: fileName,
+			extension: extension,
+			mediaId: mediaId,
+		} as IDataObject;
 	} catch (error) {
 		if(error.name === 'CONTENT__MEDIA_DUPLICATED_FILE_NAME') {
 			try{
@@ -83,19 +89,37 @@ export async function setMedia(this: IHookFunctions | IExecuteFunctions | IExecu
 						'_response': true,
 					};
 					await shopwareApiRequest.call(this, 'POST', '/_action/media/' + mediaId + '/upload', body, newQuery, '', option, header);
+
+					return {
+						fileName: fileName,
+						extension: extension,
+						mediaId: mediaId,
+					} as IDataObject;
 				} else if (overrideMode === 'replace') {
 					// Get the existing file
 					const getOldIdBody = {"limit":1,"filter":[{"type":"multi","operator":"AND","queries":[{"type":"equals","field":"fileName","value":fileName},{"type":"equals","field":"fileExtension","value":extension}]}]};
 					const oldId = await shopwareApiRequest.call(this, 'POST', '/search/media/', getOldIdBody);
 
 					// Replace
-					await shopwareApiRequest.call(this, 'POST', '/_action/media/' + oldId.pop().id + '/upload', body, query, '', option, header);
+					await shopwareApiRequest.call(this, 'POST', '/_action/media/' + oldId[oldId.length - 1].id + '/upload', body, query, '', option, header);
 					
 					// Delete newly created asset
 					await shopwareApiRequest.call(this, 'DELETE', '/media/' + mediaId, {});
+
+					return {
+						fileName: fileName,
+						extension: extension,
+						mediaId: oldId[oldId.length - 1].id,
+					} as IDataObject;
 				} else if (overrideMode === 'skip') {
 					// Delete newly created asset
 					await shopwareApiRequest.call(this, 'DELETE', '/media/' + mediaId, {});
+
+					return {
+						fileName: 'skipped',
+						extension: '',
+						mediaId: '',
+					} as IDataObject;
 				} else {
 					// Delete newly created asset
 					await shopwareApiRequest.call(this, 'DELETE', '/media/' + mediaId, {});
@@ -107,6 +131,12 @@ export async function setMedia(this: IHookFunctions | IExecuteFunctions | IExecu
 			}
 		}
 	}
+
+	return {
+		fileName: 'error',
+		extension: '',
+		mediaId: '',
+	} as IDataObject;
 }
 
 async function getNewFilename(this: IHookFunctions | IExecuteFunctions | IExecuteSingleFunctions | ILoadOptionsFunctions, fileName: string, extension: string) {

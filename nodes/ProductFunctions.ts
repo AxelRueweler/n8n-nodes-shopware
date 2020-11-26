@@ -14,6 +14,7 @@ import {
 	IListPrice,
 	IProductTranslation,
 	IProduct,
+	IProductMedia,
 } from './ProductInterface';
 
 import {
@@ -161,6 +162,24 @@ export async function getProductCreateOrUpdateBody(this: ILoadOptionsFunctions |
 		} else if(key === 'customSearchKeywords') {
 			// @ts-ignore
 			Object.assign(body, {customSearchKeywords: value.split(',')});
+		} else if(key === 'mediaAssets') {
+			const productMedia: IProductMedia[] = [];
+			let cover: string = '';
+
+			// @ts-ignore
+			value.asset.forEach(function(asset) {
+				let i = 0;
+				productMedia.push({
+					mediaId: asset.mediaId,
+					position: asset.position,
+				} as IProductMedia);
+
+				if(asset.isCover) {
+					Object.assign(body, {coverId: asset.mediaId});
+				}
+				i++;
+			});
+			Object.assign(body, {media: productMedia});
 		} else if(key) {
 			// Catch-All for singe-value fields without any special conversion
 			Object.assign(body, {[key]: value});

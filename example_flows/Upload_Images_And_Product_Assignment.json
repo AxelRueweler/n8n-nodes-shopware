@@ -1,0 +1,121 @@
+{
+  "name": "Upload Images And Product Assignment",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "create",
+        "mediaFolder": "a213f2e1a7824da39dc1af75ff443187",
+        "fileName": "={{$binary.data.fileName.replace('.' + $binary.data.fileExtension,'')}}",
+        "isBinaryData": true,
+        "binaryPropertyName": "data",
+        "overrideMode": "replace"
+      },
+      "name": "Shopware1",
+      "type": "n8n-nodes-shopware.shopware",
+      "typeVersion": 1,
+      "position": [
+        670,
+        300
+      ],
+      "credentials": {
+        "shopwareApi": "Test"
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "productIds": {
+          "equals": [
+            {
+              "field": "id",
+              "value": "40956fdc48904fc99941a9f9b07c1c6d"
+            }
+          ]
+        },
+        "baseFields": {},
+        "additionalFields": {
+          "mediaAssets": {
+            "asset": [
+              {
+                "mediaId": "={{$json[\"mediaId\"]}}",
+                "position": "={{parseInt($json[\"fileName\"].split('_')[1])}}",
+                "isCover": "={{$json[\"fileName\"].split('_')[1] == 0}}"
+              }
+            ]
+          }
+        }
+      },
+      "name": "Shopware",
+      "type": "n8n-nodes-shopware.shopware",
+      "typeVersion": 1,
+      "position": [
+        880,
+        300
+      ],
+      "credentials": {
+        "shopwareApi": "Test"
+      }
+    },
+    {
+      "parameters": {
+        "fileSelector": "C:\\Users\\axelr\\Downloads\\product\\*.jpg"
+      },
+      "name": "Read Binary Files",
+      "type": "n8n-nodes-base.readBinaryFiles",
+      "typeVersion": 1,
+      "position": [
+        420,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Read Binary Files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shopware1": {
+      "main": [
+        [
+          {
+            "node": "Shopware",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Binary Files": {
+      "main": [
+        [
+          {
+            "node": "Shopware1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "id": "6"
+}

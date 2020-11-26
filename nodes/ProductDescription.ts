@@ -3,6 +3,7 @@ import {
 	INodePropertyOptions,
 	INodePropertyCollection,
 } from 'n8n-workflow';
+import { filterFields } from './ShopwareFields';
 
 export const idFilter = [
 			{
@@ -569,7 +570,7 @@ export const productFields = [
 					{
 						displayName: 'Price',
 						name: 'price',
-						type: 'fixedCollection',
+						type: 'collection',
 						values: [
 							{
 								displayName: 'Currency Id Search',
@@ -658,6 +659,180 @@ export const productFields = [
 		},
 		default: {},
 		options: [
+			{
+				displayName: 'Additional stock data',
+				name: 'additionalStockData',
+				type: 'collection',
+				default: {},
+				placeholder: 'Add additional stock field',
+				options: [
+					{
+						displayName: 'Is closeout',
+						name: 'isCloseout',
+						type: 'boolean',
+						default: false,
+						description: '',
+					},
+					{
+						displayName: 'minPurchase',
+						name: 'minPurchase',
+						type: 'number',
+						default: 0,
+						description: '',
+					},
+					{
+						displayName: 'maxPurchase',
+						name: 'maxPurchase',
+						type: 'number',
+						default: 0,
+						description: '',
+					},
+					{
+						displayName: 'purchaseSteps',
+						name: 'purchaseSteps',
+						type: 'number',
+						default: 0,
+						description: '',
+					},
+					{
+						displayName: 'purchaseUnit',
+						name: 'purchaseUnit',
+						type: 'number',
+						default: 0,
+						description: '',
+					},
+					{
+						displayName: 'referenceUnit',
+						name: 'referenceUnit',
+						type: 'string',
+						default: '',
+						description: '',
+					},
+					{
+						displayName: 'Restock time',
+						name: 'restockTime',
+						type: 'string',
+						default: '',
+						description: '',
+					},
+				],
+			},
+			{
+				displayName: 'EAN',
+				name: 'ean',
+				type: 'string',
+				default: '',
+				description: '',
+			},
+			{
+				displayName: 'Media Assets',
+				name: 'mediaAssets',
+				type: 'fixedCollection',
+				placeholder: 'Add Asset',
+				typeOptions: {
+					multipleValues: true,
+				},
+				default: {},
+				options: [
+					{
+						displayName: 'Asset ID',
+						name: 'asset',
+						type: 'collection',
+						values: [
+							{
+								displayName: 'Media ID',
+								name: 'mediaId',
+								type: 'string',
+								default: '',
+								description: '',
+								required: true,
+							},
+							{
+								displayName: 'Position',
+								name: 'position',
+								type: 'string',
+								default: '',
+								description: 'Position starts with 0',
+							},
+							{
+								displayName: 'Is cover',
+								name: 'isCover',
+								type: 'boolean',
+								default: false,
+								description: '',
+							},
+						],
+					},
+					{
+						displayName: ''
+					}
+					// Bigger refactoring for having it transactional (we dont want to delete image assignments if the update fails)
+					/*{
+						displayName: 'Configuration',
+						name: 'configuration',
+						type: 'collection',
+						values: [
+							{
+								displayName: 'Replace existing media',
+								name: 'replaceExistingMedia',
+								type: 'boolean',
+								default: false,
+								description: '',
+							},
+						],
+					}*/
+					// Integrated mediaId search does not work at the moment
+					// There is some sort of Vue.js error
+					// TypeError: Cannot read property 'length' of undefined : FixedCollectionParameter.vue?86c9:formatted:129
+					/*{
+						displayName: 'Asset Search',
+						name: 'assetSearch',
+						type: 'collection',
+						values: [
+							{
+								displayName: 'AssetID Search',
+								name: 'assetId',
+								type: 'fixedCollection',
+								typeOptions: {
+									multipleValues: true,
+								},
+								default: {},
+								values: idFilter,
+								description: "Search of the AssetId.",
+								required: true, 
+							},
+							{
+								displayName: 'Position',
+								name: 'position',
+								type: 'string',
+								default: '',
+								description: '',
+							},
+							{
+								displayName: 'Is cover',
+								name: 'isCover',
+								type: 'boolean',
+								default: false,
+								description: '',
+							},
+						],
+					},*/
+				],
+			},
+			{
+				displayName: 'Release date', 
+				name: 'releaseDate',
+				type: 'dateTime',
+				default: '',
+				description: '',
+			},
+			{
+				displayName: 'Shipping free',
+				name: 'shippingFree',
+				type: 'boolean',
+				default: false,
+				description: '',
+			},
 			{
 				displayName: 'Translations',
 				name: 'translations',
@@ -792,86 +967,6 @@ export const productFields = [
 					},
 				],
 			},
-			{
-				displayName: 'Additional stock data',
-				name: 'additionalStockData',
-				type: 'collection',
-				default: {},
-				placeholder: 'Add additional stock field',
-				options: [
-					{
-						displayName: 'Is closeout',
-						name: 'isCloseout',
-						type: 'boolean',
-						default: false,
-						description: '',
-					},
-					{
-						displayName: 'minPurchase',
-						name: 'minPurchase',
-						type: 'number',
-						default: 0,
-						description: '',
-					},
-					{
-						displayName: 'maxPurchase',
-						name: 'maxPurchase',
-						type: 'number',
-						default: 0,
-						description: '',
-					},
-					{
-						displayName: 'purchaseSteps',
-						name: 'purchaseSteps',
-						type: 'number',
-						default: 0,
-						description: '',
-					},
-					{
-						displayName: 'purchaseUnit',
-						name: 'purchaseUnit',
-						type: 'number',
-						default: 0,
-						description: '',
-					},
-					{
-						displayName: 'referenceUnit',
-						name: 'referenceUnit',
-						type: 'string',
-						default: '',
-						description: '',
-					},
-					{
-						displayName: 'Restock time',
-						name: 'restockTime',
-						type: 'string',
-						default: '',
-						description: '',
-					},
-				],
-			},
-			{
-				displayName: 'EAN',
-				name: 'ean',
-				type: 'string',
-				default: '',
-				description: '',
-			},
-			{
-				displayName: 'Release date',
-				name: 'releaseDate',
-				type: 'dateTime',
-				default: '',
-				description: '',
-			},
-			{
-				displayName: 'Shipping free',
-				name: 'shippingFree',
-				type: 'boolean',
-				default: false,
-				description: '',
-			},
 		],
 	},
 ] as INodeProperties[];
-
