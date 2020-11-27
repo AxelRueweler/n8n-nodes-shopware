@@ -820,6 +820,18 @@ export const productFields = [
 				],
 			},
 			{
+				displayName: 'Manufacturer Search',
+				name: 'manufacturerId',
+				type: 'fixedCollection',
+				typeOptions: {
+					multipleValues: true,
+				},
+				default: {},
+				options: idFilter,
+				description: "Manufacturer ID of the product.",
+				required: true, 
+			},
+			{
 				displayName: 'Release date', 
 				name: 'releaseDate',
 				type: 'dateTime',

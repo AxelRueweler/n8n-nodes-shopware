@@ -11,12 +11,11 @@
  * - Media Assets
  *  - Title and alt tags
  * - Variation handling
- * - Manufactures  
  * - Guard against to many updates
  * - Media assignment
- *  - Cover Assignment
  *  - Replace all assigments
  *  - Search for Media and assign it all
+ * - Refactoring for distinction between building payload and doing requests
  * 
  * Needed Features for a better integration:
  * - loadOptionsMethod based on the value of other fields. At the moment the selection of fields and the associations is quite long.
@@ -67,6 +66,10 @@ import {
 
 import { setMedia } from './MediaFunctions';
 
+import {
+	manufacturerFields,
+} from './ManufacturerDescription';
+import { setManufacturer } from './ManufacturerFunctions';
 
 require('console');
 
@@ -249,6 +252,8 @@ export class Shopware implements INodeType {
 			...productFields,
 
 			...mediaFields,
+
+			...manufacturerFields,
 		]
 	};
 
@@ -410,6 +415,12 @@ export class Shopware implements INodeType {
 							}
 						}
 					}
+				} else if (resource === 'product-manufacturer'){
+					const manufacturerResponseData = await setManufacturer.call(this, i, operation);
+
+					if(manufacturerResponseData !== undefined) {
+						returnData.push.apply(returnData, [manufacturerResponseData] as IDataObject[]);
+					}
 				}
 			} else if (operation === 'update') {
 				if(resource === 'product') {
@@ -420,6 +431,12 @@ export class Shopware implements INodeType {
 						const body = await getProductCreateOrUpdateBody.call(this, i, operation);
 						responseData = await shopwareApiRequest.call(this, 'PATCH', '/' + resource + '/' + productId, body);
 					};
+				} else if (resource === 'product-manufacturer'){
+					const manufacturerResponseData = await setManufacturer.call(this, i, operation);
+
+					if(manufacturerResponseData !== undefined) {
+						returnData.push.apply(returnData, [manufacturerResponseData] as IDataObject[]);
+					}
 				}
 			} else if (operation === 'get' || operation === 'getAll') {
 				const body: IDataObject = {};

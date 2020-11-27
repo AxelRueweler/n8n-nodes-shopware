@@ -130,7 +130,7 @@ export async function getEntityIds(this: ILoadOptionsFunctions, endpoint: string
 	return returnData;
 }
 
-export async function getEntityIdsByFilter(this: ILoadOptionsFunctions | IExecuteFunctions, endpoint: string, filter: IDataObject): Promise<Array<string>> { // tslint:disable-line:no-any
+export async function getEntityIdsByFilter(this: IHookFunctions | IExecuteFunctions | IExecuteSingleFunctions | ILoadOptionsFunctions, endpoint: string, filter: IDataObject): Promise<Array<string>> { // tslint:disable-line:no-any
 	const response = await getEntityIdResponseByFilter.call(this, endpoint, filter, false);
 
 	const returnData:Array<string> = [];
@@ -148,7 +148,7 @@ export async function getEntityIdsByFilter(this: ILoadOptionsFunctions | IExecut
 	return returnData;
 }
 
-export async function getEntityIdByFilter(this: ILoadOptionsFunctions | IExecuteFunctions, endpoint: string, filter: IDataObject): Promise<string> { // tslint:disable-line:no-any
+export async function getEntityIdByFilter(this: IHookFunctions | IExecuteFunctions | IExecuteSingleFunctions | ILoadOptionsFunctions, endpoint: string, filter: IDataObject): Promise<string> { // tslint:disable-line:no-any
 	const response = await getEntityIdResponseByFilter.call(this, endpoint, filter, true);
 	if(response[0] !== undefined && response[0].id !== undefined) { 
 		const id = response.pop().id;
@@ -158,7 +158,7 @@ export async function getEntityIdByFilter(this: ILoadOptionsFunctions | IExecute
 	}
 }
 
-async function getEntityIdResponseByFilter(this: ILoadOptionsFunctions | IExecuteFunctions, endpoint: string, filter: IDataObject, limit: boolean = true): Promise<Array<any>> { // tslint:disable-line:no-any
+async function getEntityIdResponseByFilter(this: IHookFunctions | IExecuteFunctions | IExecuteSingleFunctions | ILoadOptionsFunctions, endpoint: string, filter: IDataObject, limit: boolean = true): Promise<Array<any>> { // tslint:disable-line:no-any
 	const bodyFilter: IDataObject[] = [];
 
 	if (filter.contains && Object.keys(filter.contains).length !== 0) {

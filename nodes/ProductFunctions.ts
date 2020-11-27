@@ -180,6 +180,9 @@ export async function getProductCreateOrUpdateBody(this: ILoadOptionsFunctions |
 				i++;
 			});
 			Object.assign(body, {media: productMedia});
+		} else if(key === 'manufacturerId') {
+			const manufacturerId = await getEntityIdByFilter.call(this, 'product-manufacturer', value);
+			Object.assign(body, {manufacturerId: manufacturerId});
 		} else if(key) {
 			// Catch-All for singe-value fields without any special conversion
 			Object.assign(body, {[key]: value});
