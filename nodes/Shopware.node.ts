@@ -312,7 +312,6 @@ export class Shopware implements INodeType {
 
 					returnData = await getEntityIds.call(this, 'currency', body);
 
-					//@ts-ignore
 					return returnData;
 				} catch (e) {
 					throw e;
@@ -332,7 +331,6 @@ export class Shopware implements INodeType {
 
 					returnData = await getEntityIds.call(this, 'language', body);
 
-					//@ts-ignore
 					return returnData;
 				} catch (e) {
 					throw e;
@@ -352,7 +350,6 @@ export class Shopware implements INodeType {
 
 					returnData = await getEntityIds.call(this, 'media-folder', body);
 
-					//@ts-ignore
 					return returnData;
 				} catch (e) {
 					throw e;
