@@ -63,7 +63,7 @@ export const manufacturerFields = [
 				name: 'description',
 				default: '',
 				type: 'string',
-			},		
+			},
 			{
 				displayName: 'MediaID Search',
 				name: 'mediaId',

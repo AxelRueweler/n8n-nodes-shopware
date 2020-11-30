@@ -70,7 +70,11 @@ import { setMedia } from './MediaFunctions';
 import {
 	manufacturerFields,
 } from './ManufacturerDescription';
+
 import { setManufacturer } from './ManufacturerFunctions';
+
+import {propertyGroupFields, propertyGroupOptionFields} from './PropertyDescription';
+import { setPropertyGroup, setPropertyGroupOption } from './PropertyFunctions';
 
 require('console');
 
@@ -255,6 +259,9 @@ export class Shopware implements INodeType {
 			...mediaFields,
 
 			...manufacturerFields,
+
+			...propertyGroupFields,
+			...propertyGroupOptionFields,
 		]
 	};
 
@@ -419,6 +426,18 @@ export class Shopware implements INodeType {
 					if(manufacturerResponseData !== undefined) {
 						returnData.push.apply(returnData, [manufacturerResponseData] as IDataObject[]);
 					}
+				} else if (resource === 'property-group'){
+					const propertyGroupData = await setPropertyGroup.call(this, i, operation);
+
+					if(propertyGroupData !== undefined) {
+						returnData.push.apply(returnData, [propertyGroupData] as IDataObject[]);
+					}
+				} else if (resource === 'property-group-option'){
+					const propertyGroupOptionData = await setPropertyGroupOption.call(this, i, operation);
+
+					if(propertyGroupOptionData !== undefined) {
+						returnData.push.apply(returnData, [propertyGroupOptionData] as IDataObject[]);
+					}
 				}
 			} else if (operation === 'update') {
 				if(resource === 'product') {
@@ -434,6 +453,18 @@ export class Shopware implements INodeType {
 
 					if(manufacturerResponseData !== undefined) {
 						returnData.push.apply(returnData, [manufacturerResponseData] as IDataObject[]);
+					}
+				} else if (resource === 'property-group'){
+					const propertyGroupData = await setPropertyGroup.call(this, i, operation);
+
+					if(propertyGroupData !== undefined) {
+						returnData.push.apply(returnData, [propertyGroupData] as IDataObject[]);
+					}
+				} else if (resource === 'property-group-option'){
+					const propertyGroupOptionData = await setPropertyGroupOption.call(this, i, operation);
+
+					if(propertyGroupOptionData !== undefined) {
+						returnData.push.apply(returnData, [propertyGroupOptionData] as IDataObject[]);
 					}
 				}
 			} else if (operation === 'get' || operation === 'getAll') {
