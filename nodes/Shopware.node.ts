@@ -8,8 +8,9 @@
  * - Caching of access token for the credentials so that all the nodes in one workflow can access it
  * - Better error handling
  * - Consistent handling of loops
- * - Media Assets
+ * - Media Assets ✔
  *  - Title and alt tags
+ * - Option handling
  * - Variation handling
  * - Guard against to many updates
  * - Media assignment
@@ -564,6 +565,10 @@ export class Shopware implements INodeType {
 				const resource = this.getNodeParameter('resource', i) as string;
 				if (resource) {
 					responseData = await shopwareApiRequest.call(this, 'POST', '/search/' + resource, body);
+
+					if(responseData.length > 0) {
+						returnData.push.apply(returnData, responseData as IDataObject[]);
+					}
 				}
 			} else if (operation === 'delete') {
 				const resource = this.getNodeParameter('resource', i) as string;
@@ -571,6 +576,10 @@ export class Shopware implements INodeType {
 
 				if (Id) {
 					responseData = await shopwareApiRequest.call(this, 'DELETE', '/' + resource + '/' + Id, {});
+
+					if(responseData.length > 0) {
+						returnData.push.apply(returnData, responseData as IDataObject[]);
+					}
 				}
 			}
 		}
