@@ -1,30 +1,37 @@
-export interface IPropertyGroup {
-    name?: string;
-    description?: string;
-    displayType?: string;
-    sortingType?: string;
-    filterable?: boolean;
-    position?: number;
-    options?: IPropertyGroupOption[];
-    translations?: IPropertyGroupTranslation[];
+import { propertyConfiguration } from "./GenericFunctions";
+
+
+export class PropertyGroup {
+    @propertyConfiguration({requiredOnCreate: true})
+    name?: string = undefined;
+    description?: string = undefined;
+    displayType?: string = undefined;
+    sortingType?: string = undefined;
+    filterable?: boolean = undefined;
+    position?: number = undefined;
+    options?: PropertyGroupOption[] = undefined;
+    translations?: PropertyGroupTranslation[] = undefined;
 }
 
-export interface IPropertyGroupTranslation {
+export class PropertyGroupTranslation {
     name?: string;
     description?: string;
     position?: number; // This is because different translations need differenz sortings 
 }
 
-export interface IPropertyGroupOption {
+export class PropertyGroupOption {
+    @propertyConfiguration({requiredOnCreate: true})
     name?: string;
-    groupId?: string,
+    @propertyConfiguration({requiredOnCreate: true, idSearch: true, searchEntity: 'property-group', multipleResults: false})
+    groupId?: string;
     position?: number;
     colorHexCode?: string;
-    mediaId: string;
-    translations?: IPropertyGroupOptionTranslation[];
+    @propertyConfiguration({requiredOnCreate: true, idSearch: true, searchEntity: 'media', multipleResults: false})    
+    mediaId?: string;
+    translations?: PropertyGroupOptionTranslation[];
 }
 
-export interface IPropertyGroupOptionTranslation {
+export class PropertyGroupOptionTranslation {
     name?: string;
     position?: number;
 }

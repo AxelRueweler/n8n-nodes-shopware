@@ -74,7 +74,9 @@ import {
 import { setManufacturer } from './ManufacturerFunctions';
 
 import {propertyGroupFields, propertyGroupOptionFields} from './PropertyDescription';
-import { setPropertyGroup, setPropertyGroupOption } from './PropertyFunctions';
+import { setPropertyGroupOption } from './PropertyFunctions';
+import { entityMaps } from './ShopwareEntityInterface';
+import { createShopwareEntityObject, setShopwareEntity } from './ShopwareEntityFunctions';
 
 require('console');
 
@@ -426,11 +428,14 @@ export class Shopware implements INodeType {
 					if(manufacturerResponseData !== undefined) {
 						returnData.push.apply(returnData, [manufacturerResponseData] as IDataObject[]);
 					}
-				} else if (resource === 'property-group'){
-					const propertyGroupData = await setPropertyGroup.call(this, i, operation);
+				} else if (entityMaps[resource] !== undefined){
+					const shopwareEntityConfiguration = entityMaps[resource];
+					const shopwareEntity = await createShopwareEntityObject.call(this, i, operation, shopwareEntityConfiguration);
 
-					if(propertyGroupData !== undefined) {
-						returnData.push.apply(returnData, [propertyGroupData] as IDataObject[]);
+					const result = await setShopwareEntity.call(this, operation, shopwareEntityConfiguration, shopwareEntity);
+
+					if(result !== undefined) {
+						returnData.push.apply(returnData, [result] as IDataObject[]);
 					}
 				} else if (resource === 'property-group-option'){
 					const propertyGroupOptionData = await setPropertyGroupOption.call(this, i, operation);
@@ -455,10 +460,13 @@ export class Shopware implements INodeType {
 						returnData.push.apply(returnData, [manufacturerResponseData] as IDataObject[]);
 					}
 				} else if (resource === 'property-group'){
-					const propertyGroupData = await setPropertyGroup.call(this, i, operation);
+					const shopwareEntityConfiguration = entityMaps[resource];
+					const shopwareEntity = await createShopwareEntityObject.call(this, i, operation, shopwareEntityConfiguration);
+					const ids = await 
+					const result = await setShopwareEntity.call(this, operation, shopwareEntityConfiguration, shopwareEntity, ids);
 
-					if(propertyGroupData !== undefined) {
-						returnData.push.apply(returnData, [propertyGroupData] as IDataObject[]);
+					if(result !== undefined) {
+						returnData.push.apply(returnData, [result] as IDataObject[]);
 					}
 				} else if (resource === 'property-group-option'){
 					const propertyGroupOptionData = await setPropertyGroupOption.call(this, i, operation);

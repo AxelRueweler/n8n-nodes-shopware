@@ -2,6 +2,8 @@ import {
 	OptionsWithUri,
 } from 'request';
 
+import "reflect-metadata";
+
 import {
 	BINARY_ENCODING,
 	IExecuteFunctions,
@@ -393,3 +395,13 @@ export function removeEmptyProperties(obj: object) {
 		if (typeof obj[key] === 'object' && Object.keys(obj[key]).length == 0) delete obj[key]; //remove empty objects
 	});
 };
+
+const formatMetadataKey = Symbol("properties");
+
+export function propertyConfiguration(properties: object) {
+    return Reflect.metadata(formatMetadataKey, properties);
+}
+
+export function getPropertyConfiguration(target: any, propertyKey: string, property: string) {
+   return Reflect.getMetadata(formatMetadataKey, target, property);
+}
