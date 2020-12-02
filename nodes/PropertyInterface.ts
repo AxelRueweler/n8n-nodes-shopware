@@ -1,5 +1,19 @@
 import { propertyConfiguration } from "./GenericFunctions";
+import { IShopwareEntityConfiguration } from './ShopwareEntityInterface';
 
+export const PropertyGroupMap = {
+    endpoint: 'property-group',
+    class: 'PropertyGroup',
+    bodyMethod: 'createShopwareEntityObject',
+    setMethod: 'setShopwareEntity',
+} as IShopwareEntityConfiguration;
+
+export const PropertyGroupOptionMap = {
+    endpoint: 'property-group-option',
+    class: 'PropertyGroupOption',
+    bodyMethod: 'createShopwareEntityObject',
+    setMethod: 'setShopwareEntity',
+} as IShopwareEntityConfiguration;
 
 export class PropertyGroup {
     @propertyConfiguration({requiredOnCreate: true})
@@ -21,17 +35,17 @@ export class PropertyGroupTranslation {
 
 export class PropertyGroupOption {
     @propertyConfiguration({requiredOnCreate: true})
-    name?: string;
+    name?: string = undefined;
     @propertyConfiguration({requiredOnCreate: true, idSearch: true, searchEntity: 'property-group', multipleResults: false})
-    groupId?: string;
-    position?: number;
-    colorHexCode?: string;
-    @propertyConfiguration({requiredOnCreate: true, idSearch: true, searchEntity: 'media', multipleResults: false})    
-    mediaId?: string;
-    translations?: PropertyGroupOptionTranslation[];
+    groupId?: string = undefined;
+    position?: number = undefined;
+    colorHexCode?: string = undefined;
+    @propertyConfiguration({idSearch: true, searchEntity: 'media', multipleResults: false})    
+    mediaId?: string = undefined;
+    translations?: PropertyGroupOptionTranslation[] = undefined;
 }
 
 export class PropertyGroupOptionTranslation {
-    name?: string;
-    position?: number;
+    name?: string = undefined;
+    position?: number = undefined;
 }

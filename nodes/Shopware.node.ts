@@ -71,11 +71,8 @@ import {
 	manufacturerFields,
 } from './ManufacturerDescription';
 
-import { setManufacturer } from './ManufacturerFunctions';
-
 import {propertyGroupFields, propertyGroupOptionFields} from './PropertyDescription';
 import { bodyMethodStore, setMethodStore, entityMaps } from './ShopwareEntityInterface';
-import { createShopwareEntityObject, setShopwareEntity } from './ShopwareEntityFunctions';
 
 require('console');
 
@@ -421,12 +418,6 @@ export class Shopware implements INodeType {
 							}
 						}
 					}
-				} else if (resource === 'product-manufacturer'){
-					const manufacturerResponseData = await setManufacturer.call(this, i, operation);
-
-					if(manufacturerResponseData !== undefined) {
-						returnData.push.apply(returnData, [manufacturerResponseData] as IDataObject[]);
-					}
 				} else if (entityMaps[resource] !== undefined){
 					const shopwareEntityConfiguration = entityMaps[resource];
 					//const shopwareEntity = await createShopwareEntityObject.call(this, i, operation, shopwareEntityConfiguration);
@@ -451,12 +442,6 @@ export class Shopware implements INodeType {
 						const body = await getProductCreateOrUpdateBody.call(this, i, operation);
 						responseData = await shopwareApiRequest.call(this, 'PATCH', '/' + resource + '/' + productId, body);
 					};
-				} else if (resource === 'product-manufacturer'){
-					const manufacturerResponseData = await setManufacturer.call(this, i, operation);
-
-					if(manufacturerResponseData !== undefined) {
-						returnData.push.apply(returnData, [manufacturerResponseData] as IDataObject[]);
-					}
 				} else if (entityMaps[resource] !== undefined){
 					const shopwareEntityConfiguration = entityMaps[resource];
 					// @ts-ignore

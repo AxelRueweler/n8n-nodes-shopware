@@ -9,7 +9,7 @@ import {
 export const manufacturerFields = [
 	{
 		displayName: 'Manufacturer IDs Search',
-		name: 'manufacturerIds',
+		name: 'entityIds', // Generic Id Search for updates
 		type: 'fixedCollection',
 		typeOptions: {
 			multipleValues: true,

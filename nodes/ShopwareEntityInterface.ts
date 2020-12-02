@@ -1,11 +1,13 @@
-import { PropertyGroup } from "./PropertyInterface";
-
 import { createShopwareEntityObject, setShopwareEntity } from './ShopwareEntityFunctions';
 
+import { Manufacturer, ManufacturerMap } from "./ManufacturerInterface";
+
+import { PropertyGroup, PropertyGroupMap, PropertyGroupOption, PropertyGroupOptionMap } from "./PropertyInterface";
+
 export interface IShopwareEntityConfiguration {
-	endpoint: string;
-	class: string;
 	bodyMethod: string;
+	class: string;
+	endpoint: string;
 	setMethod: string;
 };
 
@@ -14,16 +16,15 @@ export interface IShopwareEntityMap {
 }
 
 export const entityMaps: IShopwareEntityMap = {
-	'property-group': {
-		endpoint: 'property-group',
-		class: 'PropertyGroup',
-		bodyMethod: 'createShopwareEntityObject',
-		setMethod: 'setShopwareEntity',
-	} as IShopwareEntityConfiguration,
+	'product-manufacturer': ManufacturerMap,
+	'property-group': PropertyGroupMap,
+	'property-group-option': PropertyGroupOptionMap,
 }; 
 
 export const entityStore = {
+	Manufacturer,
 	PropertyGroup,
+	PropertyGroupOption,
 }
 
 export const bodyMethodStore = {
@@ -34,4 +35,4 @@ export const setMethodStore = {
 	setShopwareEntity,
 }
 
-export type IShopwareEntities = PropertyGroup;
+export type IShopwareEntities = Manufacturer |PropertyGroup | PropertyGroupOption;

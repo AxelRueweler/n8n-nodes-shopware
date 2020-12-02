@@ -31,7 +31,7 @@ export async function createShopwareEntityObject(this: IHookFunctions | IExecute
 					if(entityPropertyConfiguration.multipleResults) {
 						searchResult = await getEntityIdsByFilter.call(this, entityPropertyConfiguration.searchEntity, searchObject);
 					} else {
-						searchResult = await getEntityIdsByFilter.call(this, entityPropertyConfiguration.searchEntity, searchObject);
+						searchResult = await getEntityIdByFilter.call(this, entityPropertyConfiguration.searchEntity, searchObject);
 					}
 
 					// @ts-ignore
@@ -53,11 +53,11 @@ export async function createShopwareEntityObject(this: IHookFunctions | IExecute
 
 		// Search
 		if(entityPropertyConfiguration !== undefined && entityPropertyConfiguration.searchEntity) {
-			let searchResult;
+            let searchResult;
 			if(entityPropertyConfiguration.multipleResults) {
 				searchResult = await getEntityIdsByFilter.call(this, entityPropertyConfiguration.searchEntity, value);
 			} else {
-				searchResult = await getEntityIdByFilter.call(this, entityPropertyConfiguration.searchEntity, value);
+                searchResult = await getEntityIdByFilter.call(this, entityPropertyConfiguration.searchEntity, value);
 			}
 
 			// @ts-ignore

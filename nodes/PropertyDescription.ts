@@ -154,7 +154,7 @@ export const propertyGroupFields = [
 export const propertyGroupOptionFields = [
 	{
 		displayName: 'Property Group Option IDs Search',
-		name: 'propertyGroupOptionIds',
+		name: 'entityIds', // Generic Id Search for updates
 		type: 'fixedCollection',
 		typeOptions: {
 			multipleValues: true,
@@ -176,7 +176,7 @@ export const propertyGroupOptionFields = [
 	},
 	{
 		displayName: 'Property Group ID Search',
-		name: 'propertyGroupId',
+		name: 'groupId',
 		type: 'fixedCollection',
 		typeOptions: {
 			multipleValues: true,
