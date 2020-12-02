@@ -1,5 +1,7 @@
 import { PropertyGroup } from "./PropertyInterface";
 
+import { createShopwareEntityObject, setShopwareEntity } from './ShopwareEntityFunctions';
+
 export interface IShopwareEntityConfiguration {
 	endpoint: string;
 	class: string;
@@ -22,6 +24,14 @@ export const entityMaps: IShopwareEntityMap = {
 
 export const entityStore = {
 	PropertyGroup,
+}
+
+export const bodyMethodStore = {
+	createShopwareEntityObject,
+}
+
+export const setMethodStore = {
+	setShopwareEntity,
 }
 
 export type IShopwareEntities = PropertyGroup;

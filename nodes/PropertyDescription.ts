@@ -7,7 +7,7 @@ import { idFilter } from './ProductDescription';
 export const propertyGroupFields = [
 	{
 		displayName: 'Property Group IDs Search',
-		name: 'propertyGroupIds',
+		name: 'entityIds', // Generic Id Search for updates
 		type: 'fixedCollection',
 		typeOptions: {
 			multipleValues: true,

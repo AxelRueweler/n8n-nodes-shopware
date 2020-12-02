@@ -74,8 +74,7 @@ import {
 import { setManufacturer } from './ManufacturerFunctions';
 
 import {propertyGroupFields, propertyGroupOptionFields} from './PropertyDescription';
-import { setPropertyGroupOption } from './PropertyFunctions';
-import { entityMaps } from './ShopwareEntityInterface';
+import { bodyMethodStore, setMethodStore, entityMaps } from './ShopwareEntityInterface';
 import { createShopwareEntityObject, setShopwareEntity } from './ShopwareEntityFunctions';
 
 require('console');
@@ -430,18 +429,17 @@ export class Shopware implements INodeType {
 					}
 				} else if (entityMaps[resource] !== undefined){
 					const shopwareEntityConfiguration = entityMaps[resource];
-					const shopwareEntity = await createShopwareEntityObject.call(this, i, operation, shopwareEntityConfiguration);
+					//const shopwareEntity = await createShopwareEntityObject.call(this, i, operation, shopwareEntityConfiguration);
+					//const result = await setShopwareEntity.call(this, operation, shopwareEntityConfiguration, shopwareEntity);
+					
+					// @ts-ignore
+					const shopwareEntity = await bodyMethodStore[shopwareEntityConfiguration.bodyMethod].call(this, i, operation, shopwareEntityConfiguration);
 
-					const result = await setShopwareEntity.call(this, operation, shopwareEntityConfiguration, shopwareEntity);
-
+					// @ts-ignore
+					const result = await setMethodStore[shopwareEntityConfiguration.setMethod].call(this, operation, shopwareEntityConfiguration, shopwareEntity);
+					
 					if(result !== undefined) {
 						returnData.push.apply(returnData, [result] as IDataObject[]);
-					}
-				} else if (resource === 'property-group-option'){
-					const propertyGroupOptionData = await setPropertyGroupOption.call(this, i, operation);
-
-					if(propertyGroupOptionData !== undefined) {
-						returnData.push.apply(returnData, [propertyGroupOptionData] as IDataObject[]);
 					}
 				}
 			} else if (operation === 'update') {
@@ -459,20 +457,23 @@ export class Shopware implements INodeType {
 					if(manufacturerResponseData !== undefined) {
 						returnData.push.apply(returnData, [manufacturerResponseData] as IDataObject[]);
 					}
-				} else if (resource === 'property-group'){
+				} else if (entityMaps[resource] !== undefined){
 					const shopwareEntityConfiguration = entityMaps[resource];
-					const shopwareEntity = await createShopwareEntityObject.call(this, i, operation, shopwareEntityConfiguration);
-					const ids = await 
-					const result = await setShopwareEntity.call(this, operation, shopwareEntityConfiguration, shopwareEntity, ids);
+					// @ts-ignore
+					const shopwareEntity = await bodyMethodStore[shopwareEntityConfiguration.bodyMethod].call(this, i, operation, shopwareEntityConfiguration);
+
+					const entityIdsSearch = this.getNodeParameter('entityIds', i) as IDataObject;
+
+					let entityIds: string[] = [];
+					if(entityIdsSearch) {
+						entityIds = await getEntityIdsByFilter.call(this, resource, entityIdsSearch);
+					}
+
+					// @ts-ignore
+					const result = await setMethodStore[shopwareEntityConfiguration.setMethod].call(this, operation, shopwareEntityConfiguration, shopwareEntity, entityIds);
 
 					if(result !== undefined) {
 						returnData.push.apply(returnData, [result] as IDataObject[]);
-					}
-				} else if (resource === 'property-group-option'){
-					const propertyGroupOptionData = await setPropertyGroupOption.call(this, i, operation);
-
-					if(propertyGroupOptionData !== undefined) {
-						returnData.push.apply(returnData, [propertyGroupOptionData] as IDataObject[]);
 					}
 				}
 			} else if (operation === 'get' || operation === 'getAll') {
