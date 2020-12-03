@@ -4,7 +4,6 @@
  * Initial Implementation: Axel Rüweler <axel@rueweler.de>
  * 
  * TODOs:
- * - Create capabilities (might be hard because of the deep data structure of Shopware 6)
  * - Caching of access token for the credentials so that all the nodes in one workflow can access it
  * - Better error handling
  * - Consistent handling of loops
@@ -16,7 +15,6 @@
  * - Media assignment
  *  - Replace all assigments
  *  - Search for Media and assign it all
- * - Refactoring for distinction between building payload and doing requests
  * 
  * Needed Features for a better integration:
  * - loadOptionsMethod based on the value of other fields. At the moment the selection of fields and the associations is quite long.
@@ -60,10 +58,6 @@ import {
 import {
 	mediaFields,
 } from 	'./MediaDescription';
-
-import {
-	getProductCreateOrUpdateBody,
-} from './ProductFunctions'
 
 import { setMedia } from './MediaFunctions';
 
@@ -374,10 +368,7 @@ export class Shopware implements INodeType {
 
 		for (let i = 0; i < length; i++) {
 			if (operation === 'create') {
-				if(resource === 'product') {
-					const body = await getProductCreateOrUpdateBody.call(this, i, operation);
-					responseData = await shopwareApiRequest.call(this, 'POST', '/' + resource, body);
-				} else if(resource === 'media') {
+				if(resource === 'media') {
 					// First create the media
 					// media?_response=true, {"mediaFolderId":"cef84bd4991c4055a7b02388dc49ca70" }
 					const mediaFolder = this.getNodeParameter('mediaFolder', i) as IDataObject;
@@ -434,15 +425,7 @@ export class Shopware implements INodeType {
 					}
 				}
 			} else if (operation === 'update') {
-				if(resource === 'product') {
-					const productIdsSearch = this.getNodeParameter('productIds', i) as IDataObject;
-					const productIds = await getEntityIdsByFilter.call(this, 'product', productIdsSearch);
-
-					for (const productId of productIds) {
-						const body = await getProductCreateOrUpdateBody.call(this, i, operation);
-						responseData = await shopwareApiRequest.call(this, 'PATCH', '/' + resource + '/' + productId, body);
-					};
-				} else if (entityMaps[resource] !== undefined){
+				if (entityMaps[resource] !== undefined){
 					const shopwareEntityConfiguration = entityMaps[resource];
 					// @ts-ignore
 					const shopwareEntity = await bodyMethodStore[shopwareEntityConfiguration.bodyMethod].call(this, i, operation, shopwareEntityConfiguration);

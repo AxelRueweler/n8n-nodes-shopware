@@ -9,7 +9,7 @@ import {
 	IDataObject,
 } from 'n8n-workflow';
 
-import { getEntityIdByFilter, getEntityIdsByFilter, getPropertyConfiguration, removeEmptyProperties, shopwareApiRequest } from './GenericFunctions';
+import { getEntityIdByFilter, getEntityIdsByFilter, getPropertyConfiguration, removeEmptyProperties, removeUndefinedyProperties, shopwareApiRequest } from './GenericFunctions';
 
 import { IShopwareEntities, IShopwareEntityConfiguration, entityStore } from './ShopwareEntityInterface';
 
@@ -39,8 +39,14 @@ export async function createShopwareEntityObject(this: IHookFunctions | IExecute
 				} else {
 					const propertyParameter = this.getNodeParameter(property, i);
 					
-					// @ts-ignore
-					shopwareEntity[property] = propertyParameter;
+					if(property === 'price') {
+						// @ts-ignore
+						removeEmptyProperties(propertyParameter);
+						Object.assign(shopwareEntity, propertyParameter);
+					} else {
+						// @ts-ignore
+						shopwareEntity[property] = propertyParameter;
+					}
 				}
 			}
 		}
@@ -64,7 +70,10 @@ export async function createShopwareEntityObject(this: IHookFunctions | IExecute
 			shopwareEntity[property] = searchResult;
 		} else if(key === 'translations'){
 			removeEmptyProperties(value);
-			Object.assign(shopwareEntity, {translations: value.translation});
+            Object.assign(shopwareEntity, {translations: value.translation});
+		} else if(key === 'price'){
+			removeEmptyProperties(value);
+			Object.assign(shopwareEntity, value.price);
 		} else if(key) {
 			// Catch-All for singe-value fields without any special conversion
 			// @ts-ignore

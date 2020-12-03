@@ -20,12 +20,7 @@ import {
 import console = require('console');
 import e = require('express');
 
-import {
-	IProductCreate,
-	IProductUpdate,
-} from './ProductInterface';
-
-type requestableObjects = IProductCreate | IProductUpdate | IDataObject;
+type requestableObjects =  IDataObject;
 
 export interface IFilterObject {
 	type?: string;
@@ -351,6 +346,7 @@ export async function shopwareApiRequest(this: IHookFunctions | IExecuteFunction
 			let message = '';
 			let name = '';
 		
+			console.log(error.response.body.errors);
 			if(typeof error.response.body.errors === 'object') {
 				for (const key of Object.keys(error.response.body.errors)) {
 					message += error.response.body.errors[key].status + ' - ' + error.response.body.errors[key].title + ' - ' + error.response.body.errors[key].detail;
@@ -375,6 +371,9 @@ async function handleShopwareApiRequestError(error: any) {
 		if (typeof error.response.body.errors === 'object') {
 			for (const key of Object.keys(error.response.body.errors)) {
 				message += error.response.body.errors[key].status + ' - ' + error.response.body.errors[key].title + ' - ' + error.response.body.errors[key].detail;
+				if(error.response.body.errors[key].source.pointer !== undefined) {
+					message += ' - ' + error.response.body.errors[key].source.pointer;
+				}
 			}
 		} else {
 			message = `${error.response.body.errors} |`;
