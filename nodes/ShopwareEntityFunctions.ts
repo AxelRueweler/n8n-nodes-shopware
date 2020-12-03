@@ -98,3 +98,21 @@ export async function setShopwareEntity(this: IHookFunctions | IExecuteFunctions
 		const responseData = await shopwareApiRequest.call(this, 'POST', '/' + shopwareEntityConfiguration.endpoint, shopwareEntity); 
 	}
 }
+
+export async function getShopwareEntity(this: IHookFunctions | IExecuteFunctions | IExecuteSingleFunctions | ILoadOptionsFunctions, resource: string, shopwareSearch: object, id? : string): Promise<any> {
+	let responseData;
+
+	if(id) {
+		responseData = await shopwareApiRequest.call(this, 'POST', '/search/' + resource + '/' + id, shopwareSearch);
+	} else {
+		responseData = await shopwareApiRequest.call(this, 'POST', '/search/' + resource, shopwareSearch);
+	}
+
+	const returnData: IDataObject[] = [];
+
+	if(responseData.length > 0) {
+		returnData.push.apply(returnData, responseData as IDataObject[]);
+	}
+	
+	return returnData
+}

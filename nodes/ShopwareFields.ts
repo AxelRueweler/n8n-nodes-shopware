@@ -8165,7 +8165,13 @@ export const entityFields = [
 								'value':'webhook.url'
 							}
 						],
-						default: ''
+						default: '',
+					},
+					{
+						displayName: 'Technical Fields',
+						name: 'technicalFields',
+						type: 'string',
+						default: '',
 					}
 				],
 			},

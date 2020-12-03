@@ -494,7 +494,14 @@ export class Shopware implements INodeType {
 									fields.push(field.split('.')[1]);
 							}
 
-							Object.assign(body.includes, { [entityName]: fields });
+							let technicalFields:string[] = []
+							//@ts-ignore
+							if(entity.technicalFields) {
+								//@ts-ignore
+								technicalFields = entity.technicalFields.split(',');
+							}
+
+							Object.assign(body.includes, { [entityName]: fields.concat(technicalFields) });
 						}
 					};
 				}
