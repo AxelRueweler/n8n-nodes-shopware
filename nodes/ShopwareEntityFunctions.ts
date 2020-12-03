@@ -9,7 +9,7 @@ import {
 	IDataObject,
 } from 'n8n-workflow';
 
-import { getEntityIdByFilter, getEntityIdsByFilter, getPropertyConfiguration, removeEmptyProperties, removeUndefinedyProperties, shopwareApiRequest } from './GenericFunctions';
+import { getEntityIdByFilter, getEntityIdsByFilter, getPropertyConfiguration, removeEmptyProperties, shopwareApiRequest } from './GenericFunctions';
 
 import { IShopwareEntities, IShopwareEntityConfiguration, entityStore } from './ShopwareEntityInterface';
 
