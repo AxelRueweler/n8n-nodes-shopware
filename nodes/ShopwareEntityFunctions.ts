@@ -13,6 +13,8 @@ import { getEntityIdByFilter, getEntityIdsByFilter, getPropertyConfiguration, re
 
 import { IShopwareEntities, IShopwareEntityConfiguration, entityStore } from './ShopwareEntityInterface';
 
+import * as uuid from 'uuid/v4';
+
 export async function createShopwareEntityObject(this: IHookFunctions | IExecuteFunctions | IExecuteSingleFunctions | ILoadOptionsFunctions, i: number, operation: string, shopwareEntityConfiguration: IShopwareEntityConfiguration): Promise<any> {
 	// @ts-ignore
 	const shopwareEntity = new entityStore[shopwareEntityConfiguration.class]();
@@ -67,14 +69,23 @@ export async function createShopwareEntityObject(this: IHookFunctions | IExecute
 			}
 
 			// @ts-ignore
-			shopwareEntity[property] = searchResult;
+			shopwareEntity[key] = searchResult;
 		} else if(key === 'translations'){
 			removeEmptyProperties(value);
-            Object.assign(shopwareEntity, {translations: value.translation});
+			const translations:object[] = [];
+			// @ts-ignore
+			value.forEach(element => {
+				translations.push(element.translation);
+			});
+			Object.assign(shopwareEntity, {translations: translations});
+
 		} else if(key === 'price'){
 			removeEmptyProperties(value);
 			Object.assign(shopwareEntity, value.price);
 		} else if(key) {
+			if(typeof value === 'object' && Object.keys(value).length) {
+				continue;
+			}
 			// Catch-All for singe-value fields without any special conversion
 			// @ts-ignore
 			shopwareEntity[key] = value;
@@ -94,8 +105,11 @@ export async function setShopwareEntity(this: IHookFunctions | IExecuteFunctions
 		}
 	}
 
+	shopwareEntity.id = uuid().replace(/-/g, '');
+	shopwareEntity.versionId = uuid().replace(/-/g, '');
 	if(operation === 'create') {
-		const responseData = await shopwareApiRequest.call(this, 'POST', '/' + shopwareEntityConfiguration.endpoint, shopwareEntity); 
+		 await shopwareApiRequest.call(this, 'POST', '/' + shopwareEntityConfiguration.endpoint, shopwareEntity);
+		 return shopwareEntity;
 	}
 }
 

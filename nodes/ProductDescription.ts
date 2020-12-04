@@ -74,7 +74,7 @@ export const productFields = [
 	/* -------------------------------------------------------------------------- */
 	{
 		displayName: 'Product IDs Search',
-		name: 'productIds',
+		name: 'entityIds',
 		type: 'fixedCollection',
 		typeOptions: {
 			multipleValues: true,
@@ -609,8 +609,9 @@ export const productFields = [
 					{
 						displayName: 'Translation',
 						name: 'translation',
-						type: 'fixedCollection',
-						values: [
+						type: 'collection',
+						default: {},
+						options: [
 							{
 								displayName: 'Language Id',
 								name: 'languageId',

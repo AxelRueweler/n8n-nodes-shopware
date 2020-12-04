@@ -20,11 +20,13 @@ export class PropertyGroup {
     name?: string = undefined;
     description?: string = undefined;
     displayType?: string = undefined;
+    id?: string = undefined;
     sortingType?: string = undefined;
     filterable?: boolean = undefined;
     position?: number = undefined;
     options?: PropertyGroupOption[] = undefined;
     translations?: PropertyGroupTranslation[] = undefined;
+    versionId?: string = undefined;
 }
 
 export class PropertyGroupTranslation {
@@ -38,11 +40,13 @@ export class PropertyGroupOption {
     name?: string = undefined;
     @propertyConfiguration({requiredOnCreate: true, idSearch: true, searchEntity: 'property-group', multipleResults: false})
     groupId?: string = undefined;
+    id?: string = undefined;
     position?: number = undefined;
     colorHexCode?: string = undefined;
     @propertyConfiguration({idSearch: true, searchEntity: 'media', multipleResults: false})    
     mediaId?: string = undefined;
     translations?: PropertyGroupOptionTranslation[] = undefined;
+    versionId?: string = undefined;
 }
 
 export class PropertyGroupOptionTranslation {

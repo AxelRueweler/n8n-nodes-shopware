@@ -10,12 +10,14 @@ export const ManufacturerMap: IShopwareEntityConfiguration = {
 
 export class Manufacturer {
     description?: string = undefined;
+    id?: string = undefined;
     link?: string = undefined;
     @propertyConfiguration({requiredOnCreate: true, idSearch: true, searchEntity: 'media', multipleResults: false})    
     mediaId?: string = undefined;
     @propertyConfiguration({requiredOnCreate: true})
     name?: string = undefined;
     translations?: ManufacturerTranslation[] = undefined;
+    versionId?: string = undefined;
 }
 
 export class ManufacturerTranslation {
