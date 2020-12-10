@@ -96,7 +96,6 @@ export class ShopwareTrigger implements INodeType {
 				}
 
 				try {
-					console.log('Get the webhooks');
 					const webhooks = await shopwareApiRequest.call(this, 'GET', '/webhook', {});
 					const webhookData = this.getWorkflowStaticData('node');
 					webhooks.forEach(function (webhook: IDataObject) {

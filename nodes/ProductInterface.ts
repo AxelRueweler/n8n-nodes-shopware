@@ -9,7 +9,7 @@ export const ProductMap = {
 } as IShopwareEntityConfiguration;
 
 export class Product {
-    @propertyConfiguration({requiredOnCreate: true})    
+    @propertyConfiguration({requiredOnCreate: true})
     name?: string = undefined;
     @propertyConfiguration({requiredOnCreate: true})
     price?: Price[] = undefined;
@@ -23,7 +23,7 @@ export class Product {
     //categories?: IAssociationToMany = undefined;
     //categoriesRo?: IAssociationToMany = undefined;
     //children?: IAssociationToMany = undefined;
-    //configuratorGroupConfig?: IConfiguratorGroupConfig;
+    configuratorGroupConfig?: ConfiguratorGroupConfig[] = undefined;
     //configuratorSettings?: IAssociationToMany = undefined;
     //cover?: IAssociationToOne = undefined;
     @propertyConfiguration({idSearch: true, searchEntity: 'media', multipleResults: false})
@@ -53,9 +53,10 @@ export class Product {
     maxPurchase?: number = undefined;
     media?: ProductMedia = undefined;
     minPurchase?: number = undefined;
-    //options?: IAssociationToMany = undefined;
+    @propertyConfiguration({idSearch: true, searchEntity: 'property-group-option', multipleResults: true})
+    options?: ProductOption[] = undefined;
     //orderLineItems?: IAssociationToMany = undefined;
-    //parent?: IAssociationToOne = undefined;
+    //parent?: string = undefined;
     @propertyConfiguration({idSearch: true, searchEntity: 'product', multipleResults: false})
     parentId?: string = undefined;
     parentVersionId?: string = undefined;
@@ -63,7 +64,8 @@ export class Product {
     productManufacturerVersionId?: string = undefined;
     productMediaVersionId?: string = undefined;
     //productReviews?: IAssociationToMany = undefined;
-    //properties?: IAssociationToMany = undefined;
+    @propertyConfiguration({idSearch: true, searchEntity: 'property-group-option', multipleResults: true})
+    properties?: string[] = undefined;
     purchasePrices?: Price = undefined;
     purchaseSteps?: number = undefined;
     purchaseUnit?: number = undefined;
@@ -126,5 +128,27 @@ export class ListPrice {
 
 export class ProductMedia {
     mediaId?: string = undefined;
+    position?: number = undefined;
+}
+
+export class ConfiguratorGroupConfig {
+    id?: string = undefined;
+    representation?: string = undefined;
+    expressionForListing?: boolean = undefined;
+}
+
+export class ProductOption {
+    id?: string = undefined;
+}
+
+export class ProductConfiguratorSetting {
+    id?: string = undefined;
+    versionId?: string = undefined;
+    @propertyConfiguration({requiredOnCreate: true})
+    productId?: string = undefined;
+    productVersionId?: string = undefined;
+    mediaId?: string = undefined;
+    @propertyConfiguration({requiredOnCreate: true})
+    optionId?: string = undefined;
     position?: number = undefined;
 }

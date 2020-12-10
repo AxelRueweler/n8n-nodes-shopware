@@ -68,8 +68,6 @@ import {
 import {propertyGroupFields, propertyGroupOptionFields} from './PropertyDescription';
 import { bodyMethodStore, setMethodStore, entityMaps } from './ShopwareEntityInterface';
 
-require('console');
-
 export class Shopware implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Shopware',
@@ -355,6 +353,25 @@ export class Shopware implements INodeType {
 					throw e;
 				}
 			},
+
+			async getPropertyGroups(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				let returnData: INodePropertyOptions[] = [];
+
+				try {
+					const body = {
+						"includes": {"language":["name","id"]},
+						"total-count-mode": "0",
+						"sort": [{ "field": "name", "order": "ASC", "naturalSorting": true }],
+						"filter": [],
+					} as IDataObject
+
+					returnData = await getEntityIds.call(this, 'property-group', body);
+
+					return returnData;
+				} catch (e) {
+					throw e;
+				}
+			},
 		},
 	};
 
@@ -367,6 +384,7 @@ export class Shopware implements INodeType {
 		const resource = this.getNodeParameter('resource', 0) as string;
 
 		for (let i = 0; i < length; i++) {
+
 			if (operation === 'create') {
 				if(resource === 'media') {
 					// First create the media
@@ -431,6 +449,10 @@ export class Shopware implements INodeType {
 					const shopwareEntity = await bodyMethodStore[shopwareEntityConfiguration.bodyMethod].call(this, i, operation, shopwareEntityConfiguration);
 
 					const entityIdsSearch = this.getNodeParameter('entityIds', i) as IDataObject;
+
+					if(Object.keys(entityIdsSearch).length === 0) {
+						throw new Error("Without entity search all the entities would be updated. Please add entity search criteria");
+					}
 
 					let entityIds: string[] = [];
 					if(entityIdsSearch) {
@@ -592,14 +614,13 @@ export class Shopware implements INodeType {
 				if (Id) {
 					responseData = await shopwareApiRequest.call(this, 'DELETE', '/' + resource + '/' + Id, {});
 
-					if(responseData.length > 0) {
+					if(responseData !== undefined && responseData.length > 0) {
 						returnData.push.apply(returnData, responseData as IDataObject[]);
 					}
 				}
 			}
 		}
 
-		console.log(returnData);
 		return [this.helpers.returnJsonArray(returnData)];
 	}
 }

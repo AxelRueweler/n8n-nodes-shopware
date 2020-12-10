@@ -5,7 +5,6 @@ import {
 import "reflect-metadata";
 
 import {
-	BINARY_ENCODING,
 	IExecuteFunctions,
 	IExecuteSingleFunctions,
 	IHookFunctions,
@@ -323,7 +322,7 @@ export async function shopwareApiRequest(this: IHookFunctions | IExecuteFunction
 
 	options = Object.assign({}, options, option);
 
-	console.log(options);
+	//console.log(options);
 
 	try {
 		const responseData = await this.helpers.request!(options);
@@ -382,6 +381,39 @@ async function handleShopwareApiRequestError(error: any) {
 		throw new Error(errorMessage);
 	}
 	throw error;
+}
+
+export async function searchForShopwareEntity(this: IHookFunctions | IExecuteFunctions | IExecuteSingleFunctions | ILoadOptionsFunctions, resource: string, shopwareEntity: object): Promise<any> {
+	const shopwareSearch:object = {"limit":1,"filter":[{"type":"multi","operator":"AND","queries":[]}]};
+
+	removeEmptyProperties(shopwareEntity);
+	for (var property in shopwareEntity) {
+		if (shopwareEntity.hasOwnProperty(property)) {
+			// @ts-ignore
+			shopwareSearch.filter.push({"type":"equals","field":property,"value":shopwareEntity[property]});
+
+		}
+	}
+
+	return getShopwareEntity.call(this, resource, shopwareSearch);
+}
+
+export async function getShopwareEntity(this: IHookFunctions | IExecuteFunctions | IExecuteSingleFunctions | ILoadOptionsFunctions, resource: string, shopwareSearch: object, id? : string): Promise<any> {
+	let responseData;
+
+	if(id) {
+		responseData = await shopwareApiRequest.call(this, 'POST', '/search/' + resource + '/' + id, shopwareSearch);
+	} else {
+		responseData = await shopwareApiRequest.call(this, 'POST', '/search/' + resource, shopwareSearch);
+	}
+
+	const returnData: IDataObject[] = [];
+
+	if(responseData.length > 0) {
+		returnData.push.apply(returnData, responseData as IDataObject[]);
+	}
+	
+	return returnData
 }
 
 export function removeEmptyProperties(obj: object) {
