@@ -35,22 +35,21 @@
     {
       "parameters": {
         "operation": "update",
-        "productIds": {
-          "equals": [
+        "entityIds": {
+          "contains": [
             {
               "field": "id",
               "value": "40956fdc48904fc99941a9f9b07c1c6d"
             }
           ]
         },
-        "baseFields": {},
         "additionalFields": {
-          "mediaAssets": {
-            "asset": [
+          "media": {
+            "media": [
               {
                 "mediaId": "={{$json[\"mediaId\"]}}",
                 "position": "={{parseInt($json[\"fileName\"].split('_')[1])}}",
-                "isCover": "={{$json[\"fileName\"].split('_')[1] == 0}}"
+                "isCover": "={{$json[\"fileName\"].split('_')[1] == 0}}"
               }
             ]
           }

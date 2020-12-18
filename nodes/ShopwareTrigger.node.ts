@@ -18,7 +18,7 @@ import {
 	ShopwareTriggerTopics
 } from './ShopwareTriggerProperties';
 
-import * as uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 
 export class ShopwareTrigger implements INodeType {
 	description: INodeTypeDescription = {

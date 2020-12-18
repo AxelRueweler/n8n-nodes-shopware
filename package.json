@@ -49,7 +49,9 @@
         "n8n-core": "0.53.0",
         "request": "^2.88.2",
         "n8n-workflow": "^0.46.0",
-        "@types/uuid": "^3.4.6"
+        "uuid": "8.3.2",
+        "@types/uuid": "8.3.0",
+        "js-sha256": "0.9.0"
     },
     "jest": {
         "transform": {

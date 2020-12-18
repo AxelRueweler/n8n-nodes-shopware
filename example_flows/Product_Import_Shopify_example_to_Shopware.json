@@ -1,0 +1,711 @@
+{
+  "name": "Product Import Shopify example to Shopware",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [
+        -70,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "filePath": "C:\\Users\\axelr\\Downloads\\Apparel.csv.bak.txt"
+      },
+      "name": "Read Binary File",
+      "type": "n8n-nodes-base.readBinaryFile",
+      "typeVersion": 1,
+      "position": [
+        100,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "options": {
+          "includeEmptyCells": true
+        }
+      },
+      "name": "Spreadsheet File",
+      "type": "n8n-nodes-base.spreadsheetFile",
+      "typeVersion": 1,
+      "position": [
+        280,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "filter": {
+          "contains": [],
+          "equals": [
+            {
+              "field": "productNumber",
+              "value": "={{$json[\"Handle\"]}}"
+            }
+          ]
+        }
+      },
+      "name": "Shopware",
+      "type": "n8n-nodes-shopware.shopware",
+      "typeVersion": 1,
+      "position": [
+        920,
+        360
+      ],
+      "credentials": {
+        "shopwareApi": "Test"
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "name": "={{$node[\"SplitInBatches\"].json[\"Title\"]}}",
+        "stock": "={{$node[\"SplitInBatches\"].json[\"Variant Inventory Qty\"]}}",
+        "productNumber": "={{$node[\"SplitInBatches\"].json[\"Handle\"]}}",
+        "taxId": {
+          "equals": [],
+          "contains": [
+            {
+              "field": "name",
+              "value": "=19"
+            }
+          ]
+        },
+        "price": {
+          "price": [
+            {
+              "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+              "net": 1,
+              "gross": "={{$node[\"SplitInBatches\"].json[\"Variant Price\"]}}"
+            }
+          ]
+        },
+        "additionalFields": {
+          "name": "={{$node[\"SplitInBatches\"].json[\"Title\"]}}",
+          "description": "={{$node[\"SplitInBatches\"].json[\"Body (HTML)\"]}}",
+          "isCloseout": true
+        }
+      },
+      "name": "Create Master",
+      "type": "n8n-nodes-shopware.shopware",
+      "typeVersion": 1,
+      "position": [
+        1530,
+        290
+      ],
+      "credentials": {
+        "shopwareApi": "Test"
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "name": "=test",
+        "stock": "={{$node[\"SplitInBatches\"].json[\"Variant Inventory Qty\"]}}",
+        "productNumber": "={{$node[\"SplitInBatches\"].json[\"Variant SKU\"]}}",
+        "taxId": {
+          "contains": [
+            {
+              "field": "name",
+              "value": "19"
+            }
+          ]
+        },
+        "price": {
+          "price": [
+            {
+              "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+              "net": 1,
+              "gross": "= {{$node[\"SplitInBatches\"].json[\"Variant Price\"]}}"
+            }
+          ]
+        },
+        "additionalFields": {
+          "description": "={{$node[\"SplitInBatches\"].json[\"Body (HTML)\"]}}"
+        }
+      },
+      "name": "Create Variant",
+      "type": "n8n-nodes-shopware.shopware",
+      "typeVersion": 1,
+      "position": [
+        1870,
+        610
+      ],
+      "credentials": {
+        "shopwareApi": "Test"
+      }
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "name": "SplitInBatches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 1,
+      "position": [
+        760,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "entityIds": {
+          "equals": [
+            {
+              "field": "productNumber",
+              "value": "={{$node[\"SplitInBatches\"].json[\"Handle\"]}}"
+            }
+          ]
+        },
+        "additionalFields": {
+          "name": "={{$node[\"SplitInBatches\"].json[\"Title\"] || undefined}}",
+          "description": "={{$node[\"SplitInBatches\"].json[\"Body (HTML)\"]  || undefined}}",
+          "isCloseout": true
+        }
+      },
+      "name": "Update Master",
+      "type": "n8n-nodes-shopware.shopware",
+      "typeVersion": 1,
+      "position": [
+        1850,
+        820
+      ],
+      "credentials": {
+        "shopwareApi": "Test"
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$node[\"SplitInBatches\"].json[\"Title\"].length == 0}}",
+              "value2": true
+            }
+          ],
+          "number": [],
+          "string": []
+        }
+      },
+      "name": "Only Variant",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        760
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [],
+          "number": [
+            {
+              "value1": "={{$json[\"itemsFound\"]}}",
+              "operation": "larger"
+            }
+          ]
+        }
+      },
+      "name": "Variant Exists",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1640,
+        570
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [],
+          "number": [
+            {
+              "value1": "={{$node[\"Spreadsheet File\"].json[\"Variant SKU\"].length}}",
+              "operation": "larger"
+            }
+          ]
+        }
+      },
+      "name": "Also Variant",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1700,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "entityIds": {
+          "equals": [
+            {
+              "field": "productNumber",
+              "value": "={{$node[\"SplitInBatches\"].json[\"Variant SKU\"]}}"
+            }
+          ]
+        },
+        "additionalFields": {
+          "description": "={{$node[\"SplitInBatches\"].json[\"Body (HTML)\"]}}",
+          "parentId": {
+            "equals": [
+              {
+                "field": "productNumber",
+                "value": "={{$node[\"SplitInBatches\"].json[\"Handle\"]}}"
+              }
+            ]
+          }
+        }
+      },
+      "name": "Update Variant",
+      "type": "n8n-nodes-shopware.shopware",
+      "typeVersion": 1,
+      "position": [
+        1870,
+        410
+      ],
+      "credentials": {
+        "shopwareApi": "Test"
+      }
+    },
+    {
+      "parameters": {},
+      "name": "NoOp",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        2090,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [],
+          "number": [
+            {
+              "value1": "={{$json[\"itemsFound\"]}}",
+              "operation": "larger"
+            }
+          ],
+          "string": []
+        }
+      },
+      "name": "Master Exists",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1140,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "filter": {
+          "contains": [],
+          "equals": [
+            {
+              "field": "productNumber",
+              "value": "={{$node[\"SplitInBatches\"].json[\"Variant SKU\"]}}"
+            }
+          ]
+        }
+      },
+      "name": "Shopware1",
+      "type": "n8n-nodes-shopware.shopware",
+      "typeVersion": 1,
+      "position": [
+        1440,
+        620
+      ],
+      "credentials": {
+        "shopwareApi": "Test"
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": "12"
+      },
+      "name": "Upload Images",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        440,
+        110
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "includes": {
+          "entities": [
+            {
+              "entity": "media",
+              "fields": [
+                "media.fileName",
+                "media.id"
+              ]
+            }
+          ]
+        },
+        "filter": {
+          "equals": [
+            {
+              "field": "fileName",
+              "value": "={{$node[\"SplitInBatches\"].json[\"Image Src\"].replace(/^.*[\\\\\\/]/, '').replace(/[?].*/, '') || \"dummy\"}}"
+            }
+          ]
+        }
+      },
+      "name": "Get Images",
+      "type": "n8n-nodes-shopware.shopware",
+      "typeVersion": 1,
+      "position": [
+        2500,
+        20
+      ],
+      "credentials": {
+        "shopwareApi": "Test"
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "entityIds": {
+          "contains": [],
+          "equals": [
+            {
+              "field": "productNumber",
+              "value": "={{$node[\"SplitInBatches\"].json[\"Handle\"] || $node[\"SplitInBatches\"].json[\"Variant SKU\"]}}"
+            }
+          ]
+        },
+        "additionalFields": {
+          "media": {
+            "media": [
+              {
+                "mediaId": "={{$json[\"data\"][0][\"id\"]}}",
+                "position": 1,
+                "isCover": true
+              }
+            ]
+          }
+        }
+      },
+      "name": "Assign Images",
+      "type": "n8n-nodes-shopware.shopware",
+      "typeVersion": 1,
+      "position": [
+        2680,
+        20
+      ],
+      "credentials": {
+        "shopwareApi": "Test"
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$node[\"SplitInBatches\"].json[\"Image Src\"]}}",
+              "operation": "notEqual"
+            }
+          ]
+        }
+      },
+      "name": "Image given",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        2270,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "passThrough",
+        "output": "input2"
+      },
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 1,
+      "position": [
+        580,
+        350
+      ]
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Read Binary File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Binary File": {
+      "main": [
+        [
+          {
+            "node": "Spreadsheet File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Spreadsheet File": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Upload Images",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shopware": {
+      "main": [
+        [
+          {
+            "node": "Master Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Master": {
+      "main": [
+        [
+          {
+            "node": "Also Variant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SplitInBatches": {
+      "main": [
+        [
+          {
+            "node": "Shopware",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Only Variant": {
+      "main": [
+        [
+          {
+            "node": "Shopware1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update Master",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Also Variant": {
+      "main": [
+        [
+          {
+            "node": "Variant Exists",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "NoOp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Variant Exists": {
+      "main": [
+        [
+          {
+            "node": "Update Variant",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Variant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Variant": {
+      "main": [
+        [
+          {
+            "node": "NoOp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Variant": {
+      "main": [
+        [
+          {
+            "node": "NoOp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Master": {
+      "main": [
+        [
+          {
+            "node": "NoOp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Master Exists": {
+      "main": [
+        [
+          {
+            "node": "Only Variant",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Master",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NoOp": {
+      "main": [
+        [
+          {
+            "node": "Image given",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shopware1": {
+      "main": [
+        [
+          {
+            "node": "Variant Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Images": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Images": {
+      "main": [
+        [
+          {
+            "node": "Assign Images",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image given": {
+      "main": [
+        [
+          {
+            "node": "Get Images",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "SplitInBatches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assign Images": {
+      "main": [
+        [
+          {
+            "node": "SplitInBatches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "SplitInBatches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "id": "11"
+}

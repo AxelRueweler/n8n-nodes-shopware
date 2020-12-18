@@ -604,12 +604,14 @@ export class Shopware implements INodeType {
 					responseData = await shopwareApiRequest.call(this, 'POST', '/search/' + resource, body);
 
 					if(responseData.length > 0) {
-						returnData.push.apply(returnData, responseData as IDataObject[]);
+						returnData.push.apply(returnData, [{itemsFound: responseData.length, data: responseData}] as IDataObject[]);
+					} else {
+						returnData.push.apply(returnData, [{itemsFound: 0}] as IDataObject[]);
 					}
 				}
 			} else if (operation === 'delete') {
 				const resource = this.getNodeParameter('resource', i) as string;
-				const Id = this.getNodeParameter('id', i) as string;
+				const Id = this.getNodeParameter('id', i) as string; 
 
 				if (Id) {
 					responseData = await shopwareApiRequest.call(this, 'DELETE', '/' + resource + '/' + Id, {});

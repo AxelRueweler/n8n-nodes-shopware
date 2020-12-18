@@ -386,7 +386,7 @@ export const productFields = [
 
 			{
 				displayName: 'Media Assets',
-				name: 'mediaAssets',
+				name: 'media',
 				type: 'fixedCollection',
 				placeholder: 'Add Asset',
 				typeOptions: {
@@ -396,7 +396,7 @@ export const productFields = [
 				options: [
 					{
 						displayName: 'Asset ID',
-						name: 'asset',
+						name: 'media',
 						type: 'collection',
 						values: [
 							{
@@ -410,9 +410,16 @@ export const productFields = [
 							{
 								displayName: 'Position',
 								name: 'position',
-								type: 'string',
-								default: '',
+								type: 'number',
+								default: 0,
 								description: 'Position starts with 0',
+							},
+							{
+								displayName: 'Is cover',
+								name: 'isCover',
+								type: 'boolean',
+								default: false,
+								description: '',
 							},
 						],
 					},

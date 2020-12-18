@@ -11,7 +11,7 @@ export const ProductMap = {
 export class Product {
     @propertyConfiguration({requiredOnCreate: true})
     name?: string = undefined;
-    @propertyConfiguration({requiredOnCreate: true})
+    @propertyConfiguration({requiredOnCreate: true, multipleValues: true})
     price?: Price[] = undefined;
     @propertyConfiguration({requiredOnCreate: true})
     productNumber?: string = undefined;
@@ -51,9 +51,10 @@ export class Product {
     manufacturerNumber?: string = undefined;
     markAsTopseller?: boolean = undefined;
     maxPurchase?: number = undefined;
-    media?: ProductMedia = undefined;
+    @propertyConfiguration({multipleValues: true})
+    media?: ProductMedia[] = undefined;
     minPurchase?: number = undefined;
-    @propertyConfiguration({idSearch: true, searchEntity: 'property-group-option', multipleResults: true})
+    @propertyConfiguration({idSearch: true, searchEntity: 'property-group-option', multipleResults: true, multipleValues: true})
     options?: ProductOption[] = undefined;
     //orderLineItems?: IAssociationToMany = undefined;
     //parent?: string = undefined;
@@ -64,7 +65,7 @@ export class Product {
     productManufacturerVersionId?: string = undefined;
     productMediaVersionId?: string = undefined;
     //productReviews?: IAssociationToMany = undefined;
-    @propertyConfiguration({idSearch: true, searchEntity: 'property-group-option', multipleResults: true})
+    @propertyConfiguration({idSearch: true, searchEntity: 'property-group-option', multipleResults: true, multipleValues: true})
     properties?: string[] = undefined;
     purchasePrices?: Price = undefined;
     purchaseSteps?: number = undefined;
@@ -72,6 +73,7 @@ export class Product {
     referenceUnit?: number = undefined;
     releaseDate?: Date = undefined;
     restockTime?: number = undefined;
+    @propertyConfiguration({multipleValues: true})
     searchKeywords?: CustomSearchKeyword[] = undefined;
     //seoUrls?: IAssociationToMany = undefined;
     shippingFree?: boolean = undefined;
@@ -83,6 +85,7 @@ export class Product {
     @propertyConfiguration({requiredOnCreate: true, idSearch: true, searchEntity: 'tax', multipleResults: false})
     taxId?: string = undefined;
     translation?: string = undefined;
+    @propertyConfiguration({multipleValues: true})
     translations?: ProductTranslation[] = undefined;
     //unit?: IAssociationToOne = undefined;
     unitId?: string = undefined;
@@ -129,6 +132,7 @@ export class ListPrice {
 export class ProductMedia {
     mediaId?: string = undefined;
     position?: number = undefined;
+    isCover?: boolean = undefined;
 }
 
 export class ConfiguratorGroupConfig {

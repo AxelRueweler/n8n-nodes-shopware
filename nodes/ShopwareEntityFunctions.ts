@@ -15,8 +15,12 @@ import { IShopwareEntities, IShopwareEntityConfiguration, entityStore } from './
 
 import { ProductConfiguratorSetting, ProductOption } from './ProductInterface';
 
-import * as uuid from 'uuid/v4';
+import { v5 as uuidv5 } from 'uuid';
+import { sha256, sha224 } from 'js-sha256';
+
 import { updateVariationOptionAssignment } from './ProductFunctions';
+
+const uuidNamespace = '4ac38166-e698-4e29-9816-4831033b8912';
 
 export async function createShopwareEntityObject(this: IHookFunctions | IExecuteFunctions | IExecuteSingleFunctions | ILoadOptionsFunctions, i: number, operation: string, shopwareEntityConfiguration: IShopwareEntityConfiguration): Promise<any> {
 	// @ts-ignore
@@ -97,6 +101,31 @@ export async function createShopwareEntityObject(this: IHookFunctions | IExecute
 		} else if(key === 'price'){
 			removeEmptyProperties(value);
 			Object.assign(shopwareEntity, value.price);
+		} else if(key === 'media') {
+
+			console.log(typeof shopwareEntity.media);
+			// @ts-ignore
+			shopwareEntity.media = value.media.map(media => {
+				const newMedia = media;
+				newMedia.id = uuidv5(sha256(newMedia.mediaId + "" + newMedia.productId), uuidNamespace).replace(/-/g,'');
+
+				if(newMedia.isCover) {
+					shopwareEntity.coverId = newMedia.id
+				}
+
+				return newMedia
+			});
+			// @ts-ignore
+			shopwareEntity.media = shopwareEntity.media.filter(media => {
+				if(media.mediaId === undefined || media.mediaId === '') {
+					return false;
+				} else {
+					return true;
+				}
+			});
+		} else if(entityPropertyConfiguration !== undefined && entityPropertyConfiguration.multipleValues === true) {
+			// @ts-ignore
+			shopwareEntity[key] = value[key];
 		} else if(key) {
 			if(typeof value === 'object' && Object.keys(value).length === 0) {
 				continue;
@@ -117,7 +146,7 @@ export async function setShopwareEntity(this: IHookFunctions | IExecuteFunctions
 	if(operation === 'update') {
 		if(ids !== undefined) {
 			for (const id of ids) {
-				responseData = await shopwareApiRequest.call(this, 'PATCH', '/' + shopwareEntityConfiguration.endpoint + '/' + id, shopwareEntity);
+				responseData.push(await shopwareApiRequest.call(this, 'PATCH', '/' + shopwareEntityConfiguration.endpoint + '/' + id + '?_response=true', shopwareEntity));
 
 				if(shopwareEntityConfiguration.endpoint === 'product') {
 					await updateVariationOptionAssignment.call(this, id, shopwareEntity);
@@ -127,14 +156,12 @@ export async function setShopwareEntity(this: IHookFunctions | IExecuteFunctions
 	}
 
 	if(operation === 'create') {
-		shopwareEntity.id = uuid().replace(/-/g, '');
-		shopwareEntity.versionId = uuid().replace(/-/g, '');
-		await shopwareApiRequest.call(this, 'POST', '/' + shopwareEntityConfiguration.endpoint, shopwareEntity);
+		responseData.push(await shopwareApiRequest.call(this, 'POST', '/' + shopwareEntityConfiguration.endpoint + '?_response=true', shopwareEntity));
 
 		if(shopwareEntityConfiguration.endpoint === 'product') {
-			await updateVariationOptionAssignment.call(this, shopwareEntity.id, shopwareEntity);
+			await updateVariationOptionAssignment.call(this, responseData[0].id, shopwareEntity);
 		}
 	}
 
-	return shopwareEntity;
+	return responseData;
 }

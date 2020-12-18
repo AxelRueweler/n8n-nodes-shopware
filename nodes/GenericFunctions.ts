@@ -322,7 +322,7 @@ export async function shopwareApiRequest(this: IHookFunctions | IExecuteFunction
 
 	options = Object.assign({}, options, option);
 
-	//console.log(options);
+	console.log(JSON.stringify(options));
 
 	try {
 		const responseData = await this.helpers.request!(options);

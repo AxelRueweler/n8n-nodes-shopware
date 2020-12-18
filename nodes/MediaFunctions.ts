@@ -28,7 +28,8 @@ export async function setMedia(this: IHookFunctions | IExecuteFunctions | IExecu
 			fileName = file.substring(file.lastIndexOf('/')+1);
 		}
 
-		extension = file.split('.').pop() || 'jpg';
+		// @ts-ignore
+		extension = file.split('/').pop().split('?')[0].split('.')[1] || 'jpg';
 	
 		Object.assign(query, {
 			extension: extension,
@@ -50,7 +51,8 @@ export async function setMedia(this: IHookFunctions | IExecuteFunctions | IExecu
 			fileName = file.fileName.split('.').slice(0, -1).join('.');
 		}
 
-		extension = file.fileName.split('.').pop() || 'jpg';
+		// @ts-ignore
+		extension = file.fileName.split('/').pop().split('?')[0].split('.')[1] || 'jpg';
 	
 		Object.assign(query, {
 			extension: extension,

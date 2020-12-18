@@ -21,14 +21,16 @@ export async function updateVariationOptionAssignment(this: IHookFunctions | IEx
 		let options:object[] = [];
 		// @ts-ignore
 		responseDataOptions.forEach(row => {
-			// @ts-ignore
-			row.optionIds.forEach(optionId => {
-				const productConfiguratorSetting = new ProductConfiguratorSetting();
-				productConfiguratorSetting.productId = id;
-				productConfiguratorSetting.optionId = optionId;
-
-				options.push(productConfiguratorSetting);
-			});
+			if(row.optionIds !== undefined && row.optionIds !== null) {
+				//@ts-ignore
+				row.optionIds.forEach(optionId => {
+					const productConfiguratorSetting = new ProductConfiguratorSetting();
+					productConfiguratorSetting.productId = id;
+					productConfiguratorSetting.optionId = optionId;
+	
+					options.push(productConfiguratorSetting);
+				});	
+			}
 		});
 
 		const optionsBody = {configuratorSettings: options};
