@@ -545,7 +545,7 @@ export class Shopware implements INodeType {
 				/*
 				* Checks if a total count should be gathered an in which mode
 				*/
-				const totalCountMode = this.getNodeParameter('totalCountMode', 0) as Number;
+				const totalCountMode = this.getNodeParameter('totalCountMode', i) as Number;
 
 				if (totalCountMode) {
 					body['total-count-mode'] = totalCountMode;
@@ -568,7 +568,7 @@ export class Shopware implements INodeType {
 				*		{ "type": "equalsAny", "field": "id", "value": ["0c0995b393d74e91bdf00ffdf9bfb2a0", "0dccf6d3de6749b6b5ace4a58369cd3e"] }
 				*	]
 				*/
-				const filter = this.getNodeParameter('filter', 0) as IDataObject;
+				const filter = this.getNodeParameter('filter', i) as IDataObject;
 				if (filter) {
 					const bodyFilter: IDataObject[] = [];
 
